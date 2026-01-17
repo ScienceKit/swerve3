@@ -32,7 +32,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class DriveCommands {
-  private static final double DEADBAND = 0.1;
+  private static final double DEADBAND = 0.08;
   private static final double ANGLE_KP = 5.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
@@ -45,17 +45,56 @@ public class DriveCommands {
   private DriveCommands() {}
 
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
+    return getLinearVelocityFromJoysticks(x, y, 1, true);
+  }
+
+  private static Translation2d getLinearVelocityFromJoysticks(
+      double x, double y, double scale, boolean square) {
     // Apply deadband
     double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
     Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
     // Square magnitude for more precise control
-    linearMagnitude = linearMagnitude * linearMagnitude;
+    if (square) linearMagnitude = linearMagnitude * linearMagnitude;
+    linearMagnitude *= scale;
 
     // Return new linear velocity
     return new Pose2d(Translation2d.kZero, linearDirection)
         .transformBy(new Transform2d(linearMagnitude, 0.0, Rotation2d.kZero))
         .getTranslation();
+  }
+
+  public static Command throttleDrive(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      DoubleSupplier throttle) {
+    return Commands.run(
+        () -> {
+          Translation2d linearVelocity =
+              getLinearVelocityFromJoysticks(
+                  xSupplier.getAsDouble(), ySupplier.getAsDouble(), throttle.getAsDouble(), false);
+          double omega =
+              MathUtil.applyDeadband(
+                  omegaSupplier.getAsDouble() * throttle.getAsDouble(), DEADBAND);
+
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                  omega * drive.getMaxAngularSpeedRadPerSec());
+          boolean isFlipped =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == Alliance.Red;
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds,
+                  isFlipped
+                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                      : drive.getRotation()));
+        },
+        drive);
   }
 
   /**
