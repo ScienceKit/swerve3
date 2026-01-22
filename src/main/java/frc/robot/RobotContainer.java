@@ -112,8 +112,8 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.throttleDrive(
             drive,
-            () -> -controller.getRawAxis(3),
-            () -> -controller.getRawAxis(2),
+            () -> controller.getRawAxis(3),
+            () -> controller.getRawAxis(2),
             () -> -controller.getRawAxis(0),
             () -> (controller.getRawAxis(1) + 1) / 2));
 
