@@ -8,8 +8,11 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +26,11 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -32,9 +40,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
   // Subsystems
   private final Drive drive;
-
+  private final Vision vision;
+  //PIDController yawPid = new PIDController(0, 0, 0);
+  private Rotation2d heldHeading = Rotation2d.kZero;
+  
   // Controller
   private final CommandGenericHID controller = new CommandGenericHID(0);
 
@@ -53,6 +65,12 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
+
+        vision =
+            new Vision(
+                this::addVisionMeasurement,
+                new VisionIOPhotonVision(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0));
         break;
 
       case SIM:
@@ -64,6 +82,13 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
+
+        vision =
+            new Vision(
+                this::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
+
         break;
 
       default:
@@ -75,6 +100,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        vision = new Vision(this::addVisionMeasurement, new VisionIO() {});
         break;
     }
 
@@ -131,6 +158,28 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
+
+
+
+
+    new Trigger(() -> controller.getRawAxis(5) >= 0.9)
+        .onTrue(drive.runOnce(() -> heldHeading = drive.getPose().getRotation()))
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> controller.getRawAxis(3),
+                () -> controller.getRawAxis(2),
+                () -> {
+                var yawOpt = vision.getFiducialYaw(0, 1);
+                if (yawOpt.isPresent()) {
+                    heldHeading = drive.getPose().getRotation().minus(yawOpt.get());
+                }
+                return heldHeading;
+                }
+            )
+        );
+
+
     new Trigger(() -> controller.getRawAxis(4) == 1.0)
         .onTrue(
             drive
@@ -149,4 +198,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }
+
+  public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {}
 }
