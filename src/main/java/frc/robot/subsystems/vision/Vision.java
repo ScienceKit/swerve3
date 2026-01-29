@@ -23,7 +23,6 @@ import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
@@ -86,7 +85,6 @@ public class Vision extends SubsystemBase {
     }
     return Rotation2d.kZero;
   }
-
 
   public Optional<Rotation2d> getFiducialYaw(int cameraIndex, int tagId) {
     if (cameraIndex < 0 || cameraIndex >= inputs.length) return Optional.empty();

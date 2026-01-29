@@ -8,18 +8,19 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.Matrix;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -44,9 +46,8 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  //PIDController yawPid = new PIDController(0, 0, 0);
-  private Rotation2d heldHeading = Rotation2d.kZero;
-  
+  private final Shooter shooter;
+
   // Controller
   private final CommandGenericHID controller = new CommandGenericHID(0);
 
@@ -68,7 +69,7 @@ public class RobotContainer {
 
         vision =
             new Vision(
-                this::addVisionMeasurement,
+                drive::addVisionMeasurement,
                 new VisionIOPhotonVision(
                     VisionConstants.camera0Name, VisionConstants.robotToCamera0));
         break;
@@ -85,10 +86,9 @@ public class RobotContainer {
 
         vision =
             new Vision(
-                this::addVisionMeasurement,
+                drive::addVisionMeasurement,
                 new VisionIOPhotonVisionSim(
                     VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
-
         break;
 
       default:
@@ -101,9 +101,12 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        vision = new Vision(this::addVisionMeasurement, new VisionIO() {});
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
     }
+
+    // TODO: BAD FIX
+    shooter = new Shooter();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -157,28 +160,20 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
-
-
-
-
-    new Trigger(() -> controller.getRawAxis(5) >= 0.9)
-        .onTrue(drive.runOnce(() -> heldHeading = drive.getPose().getRotation()))
+    controller
+        .axisGreaterThan(5, 0.9)
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
                 () -> controller.getRawAxis(3),
                 () -> controller.getRawAxis(2),
                 () -> {
-                var yawOpt = vision.getFiducialYaw(0, 1);
-                if (yawOpt.isPresent()) {
-                    heldHeading = drive.getPose().getRotation().minus(yawOpt.get());
-                }
-                return heldHeading;
-                }
-            )
-        );
-
+                  Rotation2d angle =
+                      new Translation2d(11.9315, 4.0285)
+                          .minus(drive.getPose().getTranslation())
+                          .getAngle(); // idk why not flip on red alliance
+                    return angle;
+                }));
 
     new Trigger(() -> controller.getRawAxis(4) == 1.0)
         .onTrue(
@@ -196,11 +191,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    // return autoChooser.get();
+    try {
+      return AutoBuilder.pathfindThenFollowPath(
+          PathPlannerPath.fromPathFile("Example Path"), new PathConstraints(1.5, 1.5, 0.5, 0.5));
+    } catch (Exception e) {
+      System.out.println("Tashaci");
+      return Commands.none();
+    }
   }
-
-  public void addVisionMeasurement(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {}
 }
