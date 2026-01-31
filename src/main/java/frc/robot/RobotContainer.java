@@ -32,7 +32,6 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -172,7 +171,7 @@ public class RobotContainer {
                       new Translation2d(11.9315, 4.0285)
                           .minus(drive.getPose().getTranslation())
                           .getAngle(); // idk why not flip on red alliance
-                    return angle;
+                  return angle;
                 }));
 
     new Trigger(() -> controller.getRawAxis(4) == 1.0)
