@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Shooter;
+package frc.robot.subsystems.shooter;
 
 import static frc.robot.util.SparkUtil.tryUntilOk;
 
@@ -26,14 +26,9 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Percentage", 0);
 
     var config = new SparkMaxConfig();
-    config
-      .idleMode(IdleMode.kCoast).
-      smartCurrentLimit(50)
-      .voltageCompensation(12.0);
-    config.encoder
-      .positionConversionFactor(Math.PI * 2)
-      .velocityConversionFactor(Math.PI * 60);
-    
+    config.idleMode(IdleMode.kCoast).smartCurrentLimit(50).voltageCompensation(12.0);
+    config.encoder.positionConversionFactor(Math.PI * 2).velocityConversionFactor(Math.PI * 60);
+
     tryUntilOk(
         motor,
         5,
