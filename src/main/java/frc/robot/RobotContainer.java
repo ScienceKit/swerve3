@@ -13,6 +13,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Spindexer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
@@ -44,8 +46,15 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
+
+  @SuppressWarnings("unused")
   private final Vision vision;
+
+  @SuppressWarnings("unused")
   private final Shooter shooter;
+
+  @SuppressWarnings("unused")
+  private final Spindexer spindexer;
 
   // Controller
   private final CommandGenericHID controller = new CommandGenericHID(0);
@@ -53,7 +62,6 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
@@ -104,8 +112,15 @@ public class RobotContainer {
         break;
     }
 
-    // TODO: BAD FIX
-    shooter = new Shooter();
+    // TODO: SET CAN ID OF SHOOTER MOTOR B===D
+
+    shooter = new Shooter(0);
+    spindexer = new Spindexer(0);
+
+    if (true) {
+      throw new RuntimeException(
+          "CRITICAL: Code volatile, stopping robot to prevent nasko's stupidity");
+    }
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

@@ -1,45 +1,44 @@
 package frc.robot.subsystems.shooter;
 
-import static frc.robot.util.SparkUtil.tryUntilOk;
-
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.littletonrobotics.junction.AutoLogOutput;
+import frc.robot.subsystems.shared.WheelIO;
+import frc.robot.subsystems.shared.WheelIO.WheelIOInputs;
+import frc.robot.subsystems.shared.WheelIOSpark;
+import frc.robot.util.TunableNumber;
 
 // TODO: please test 8====D
 
 public class Shooter extends SubsystemBase {
 
-  private final SparkMax motor = new SparkMax(30, MotorType.kBrushless);
+  public WheelIO shooter;
+  public WheelIO kicker;
 
-  @AutoLogOutput(key = "Shooter/Velocity")
-  private double speed = 0.0;
+  WheelIOInputs shooterInputs = new WheelIOInputs();
+  WheelIOInputs kickerInputs = new WheelIOInputs();
 
-  public Shooter() {
+  TunableNumber shooterSpeed = new TunableNumber("Shooter/ShooterPercentage", 0, true);
+  TunableNumber kickerSpeed = new TunableNumber("Shooter/KickerPercentage", 0, true);
+
+  public Shooter(int id) {
     super();
-    SmartDashboard.putNumber("Shooter/Percentage", 0);
-
-    var config = new SparkMaxConfig();
-    config.idleMode(IdleMode.kCoast).smartCurrentLimit(50).voltageCompensation(12.0);
-    config.encoder.positionConversionFactor(Math.PI * 2).velocityConversionFactor(Math.PI * 60);
-
-    tryUntilOk(
-        motor,
-        5,
-        () ->
-            motor.configure(
-                config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    shooter = new WheelIOSpark(id, "Shooter/ShooterWheel");
+    kicker = new WheelIOSpark(id, "Shooter/KickerWheel");
   }
 
   @Override
   public void periodic() {
-    speed = motor.getEncoder().getVelocity();
-    motor.set(SmartDashboard.getNumber("Shooter/Percentage", 0));
+    shooter.updateInputs(shooterInputs);
+
+    if (shooterSpeed.changed()) {
+      shooterSpeed.update();
+      shooter.setOpenLoop(shooterSpeed.get());
+    }
+
+    kicker.updateInputs(kickerInputs);
+
+    if (kickerSpeed.changed()) {
+      kickerSpeed.update();
+      kicker.setOpenLoop(kickerSpeed.get());
+    }
   }
 }
