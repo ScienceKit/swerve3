@@ -8,36 +8,36 @@ public class TunableNumber {
   private double value;
 
   public TunableNumber(String key) {
-    this(key, 0);
+    this(key, 0, false);
   }
 
   public TunableNumber(String key, double defaultValue) {
     this(key, defaultValue, true);
   }
 
+  // change the reset logic, use initdouble or smth
   public TunableNumber(String key, double defaultValue, boolean reset) {
     this.key = key;
     this.defaultValue = defaultValue;
-    if (reset) Preferences.setDouble(key, defaultValue);
 
-    // Dont set value directly because we want it to reflect what is in networktables.
+    if (reset) Preferences.setDouble(key, defaultValue);
     this.value = Preferences.getDouble(key, defaultValue);
+  }
+
+  private void update() {
+    value = Preferences.getDouble(key, defaultValue);
   }
 
   public boolean changed() {
     return Preferences.getDouble(key, defaultValue) != value;
   }
 
-  public void update() {
-    value = Preferences.getDouble(key, defaultValue);
-  }
-
   public double get() {
+    update();
     return value;
   }
 
   public void set(double val) {
     Preferences.setDouble(key, val);
-    get(); // Nasko I put this here to update value. So we can see if NT fucks up.
   }
 }

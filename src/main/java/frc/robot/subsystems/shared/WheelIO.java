@@ -1,15 +1,16 @@
 package frc.robot.subsystems.shared;
 
+import frc.robot.util.TunablePID;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface WheelIO {
   @AutoLog
   public static class WheelIOInputs {
     public boolean connected = false;
-    public double measuredVelocityRPS = 0.0;
+    public double measuredVelocityRPM = 0.0;
     public double appliedCurrent = 0.0;
     public double appliedVoltage = 0.0;
-    public double appliedTorque = 0.0;
+    // public double appliedTorque = 0.0;
   }
 
   /**
@@ -32,4 +33,6 @@ public interface WheelIO {
    * @param velocityRPS the setpoint in rps.
    */
   public default void setVelocity(double velocityRPS) {}
+
+  public default void updatePID(TunablePID pid) {}
 }

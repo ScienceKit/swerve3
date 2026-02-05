@@ -27,8 +27,8 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.Spindexer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
@@ -46,15 +46,10 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-
-  @SuppressWarnings("unused")
   private final Vision vision;
-
-  @SuppressWarnings("unused")
   private final Shooter shooter;
 
-  @SuppressWarnings("unused")
-  private final Spindexer spindexer;
+  // private final Spindexer spindexer;
 
   // Controller
   private final CommandGenericHID controller = new CommandGenericHID(0);
@@ -114,13 +109,8 @@ public class RobotContainer {
 
     // TODO: SET CAN ID OF SHOOTER MOTOR B===D
 
-    shooter = new Shooter(0);
-    spindexer = new Spindexer(0);
-
-    if (true) {
-      throw new RuntimeException(
-          "CRITICAL: Code volatile, stopping robot to prevent nasko's stupidity");
-    }
+    shooter = new Shooter(new WheelIOSpark(30));
+    // spindexer = new Spindexer(0);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

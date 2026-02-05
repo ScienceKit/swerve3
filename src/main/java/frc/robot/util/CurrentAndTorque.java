@@ -7,6 +7,7 @@ import edu.wpi.first.units.TorqueUnit;
 import edu.wpi.first.units.measure.Torque;
 
 // Nasko tova e nai tezhkiq boiler plate kojto sum pisal prez zhivota mi
+// Mostly useless !!!!!
 public enum CurrentAndTorque {
   NEO(2.6 / 105.0), // Empirical stall Torque and Current values. 2.6 Nm and 105 A
   NEO550(0.97 / 100.0), // Stall Torque and Current vals. 0.97 Nm and 100A

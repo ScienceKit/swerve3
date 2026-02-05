@@ -1,9 +1,9 @@
 package frc.robot.util;
 
 public class TunablePID {
-  private TunableNumber tP;
-  private TunableNumber tI;
-  private TunableNumber tD;
+  private final TunableNumber tP;
+  private final TunableNumber tI;
+  private final TunableNumber tD;
 
   public TunablePID(String key) {
     this(key, 0, 0, 0);
@@ -20,22 +20,18 @@ public class TunablePID {
   }
 
   public double p() {
-    tP.update();
     return tP.get();
   }
 
   public double i() {
-    tI.update();
     return tI.get();
   }
 
   public double d() {
-    tD.update();
     return tD.get();
   }
 
   public boolean changed() {
-    // B====D
     return tP.changed() || tI.changed() || tD.changed();
   }
 }

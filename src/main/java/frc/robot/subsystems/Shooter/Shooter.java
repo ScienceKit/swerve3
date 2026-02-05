@@ -1,44 +1,45 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shared.WheelIO;
-import frc.robot.subsystems.shared.WheelIO.WheelIOInputs;
-import frc.robot.subsystems.shared.WheelIOSpark;
+import frc.robot.subsystems.shared.WheelIOInputsAutoLogged;
 import frc.robot.util.TunableNumber;
+import frc.robot.util.TunablePID;
+import org.littletonrobotics.junction.Logger;
 
 // TODO: please test 8====D
 
 public class Shooter extends SubsystemBase {
 
-  public WheelIO shooter;
-  public WheelIO kicker;
+  private final WheelIO wheel;
+  private final TunablePID pid = new TunablePID("Shooter/PID", 0, 0, 0, false);
 
-  WheelIOInputs shooterInputs = new WheelIOInputs();
-  WheelIOInputs kickerInputs = new WheelIOInputs();
+  private final WheelIOInputsAutoLogged shooterInputs = new WheelIOInputsAutoLogged();
 
-  TunableNumber shooterSpeed = new TunableNumber("Shooter/ShooterPercentage", 0, true);
-  TunableNumber kickerSpeed = new TunableNumber("Shooter/KickerPercentage", 0, true);
+  private final TunableNumber shooterPercentage = new TunableNumber("Shooter/Percentage", 0, true);
+  private final TunableNumber shooterVelocity = new TunableNumber("Shooter/Velocity", 0, true);
 
-  public Shooter(int id) {
+  public Shooter(WheelIO shooter) {
     super();
-    shooter = new WheelIOSpark(id, "Shooter/ShooterWheel");
-    kicker = new WheelIOSpark(id, "Shooter/KickerWheel");
+    this.wheel = shooter;
+
+    SmartDashboard.putData(
+        "Shooter/shootOpenloop", this.run(() -> shooter.setOpenLoop(shooterPercentage.get())));
+    SmartDashboard.putData("Shooter/stop", this.runOnce(() -> shooter.setOpenLoop(0)));
+    SmartDashboard.putData(
+        "Shooter/shootVelocity", this.run(() -> shooter.setVelocity(shooterVelocity.get())));
   }
 
   @Override
   public void periodic() {
-    shooter.updateInputs(shooterInputs);
+    wheel.updatePID(pid);
+    wheel.updateInputs(shooterInputs);
 
-    if (shooterSpeed.changed()) {
-      shooterSpeed.update();
-      shooter.setOpenLoop(shooterSpeed.get());
-    }
+    Logger.processInputs("Shooter/Inputs", shooterInputs);
+  }
 
-    kicker.updateInputs(kickerInputs);
-
-    if (kickerSpeed.changed()) {
-      kickerSpeed.update();
-      kicker.setOpenLoop(kickerSpeed.get());
-    }
+  public String getKey() {
+    return "Shooter";
   }
 }
