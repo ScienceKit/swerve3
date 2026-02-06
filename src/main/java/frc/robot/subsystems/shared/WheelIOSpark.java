@@ -24,10 +24,7 @@ public class WheelIOSpark implements WheelIO {
     motor = new SparkMax(id, MotorType.kBrushless);
 
     var motorConfig = new SparkMaxConfig();
-    motorConfig
-        .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(50)
-        .voltageCompensation(12.0); // .openLoopRampRate(0);
+    motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(50).voltageCompensation(12.0);
     motorConfig.encoder.velocityConversionFactor(1); // 1/60.0
     motorConfig.closedLoop.feedForward.kS(0).kV(0.0021);
     // uncomment these????

@@ -34,5 +34,10 @@ public interface WheelIO {
    */
   public default void setVelocity(double velocityRPS) {}
 
+  /**
+   * Update the pid settings (if needed)
+   * 
+   * @param pid
+   */
   public default void updatePID(TunablePID pid) {}
 }

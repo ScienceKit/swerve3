@@ -14,7 +14,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -27,6 +29,7 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
@@ -34,6 +37,9 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+
+import java.util.function.Predicate;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -69,6 +75,8 @@ public class RobotContainer {
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
 
+        shooter = new Shooter(new WheelIOSpark(30));
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
@@ -85,6 +93,8 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
+
+        shooter = new Shooter(new WheelIO() {});
 
         vision =
             new Vision(
@@ -103,14 +113,11 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
+        shooter = new Shooter(new WheelIO() {});
+
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
     }
-
-    // TODO: SET CAN ID OF SHOOTER MOTOR B===D
-
-    shooter = new Shooter(new WheelIOSpark(30));
-    // spindexer = new Spindexer(0);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -130,6 +137,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    SmartDashboard.putData("Reset Preferences", Commands.runOnce(() -> Preferences.removeAll()));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -167,7 +176,7 @@ public class RobotContainer {
     controller
         .axisGreaterThan(5, 0.9)
         .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
+            DriveCommands.throttleDriveAtAngle(
                 drive,
                 () -> controller.getRawAxis(3),
                 () -> controller.getRawAxis(2),
@@ -177,7 +186,8 @@ public class RobotContainer {
                           .minus(drive.getPose().getTranslation())
                           .getAngle(); // idk why not flip on red alliance
                   return angle;
-                }));
+                },
+                () -> (controller.getRawAxis(1) + 1) / 2));
 
     new Trigger(() -> controller.getRawAxis(4) == 1.0)
         .onTrue(

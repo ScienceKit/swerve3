@@ -20,12 +20,8 @@ public class TunableNumber {
     this.key = key;
     this.defaultValue = defaultValue;
 
-    if (reset) Preferences.setDouble(key, defaultValue);
+    if (reset || !Preferences.containsKey(key)) Preferences.setDouble(key, defaultValue);
     this.value = Preferences.getDouble(key, defaultValue);
-  }
-
-  private void update() {
-    value = Preferences.getDouble(key, defaultValue);
   }
 
   public boolean changed() {
@@ -40,4 +36,9 @@ public class TunableNumber {
   public void set(double val) {
     Preferences.setDouble(key, val);
   }
+
+  private void update() {
+    value = Preferences.getDouble(key, defaultValue);
+  }
+
 }
