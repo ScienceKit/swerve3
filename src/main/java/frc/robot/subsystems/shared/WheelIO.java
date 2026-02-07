@@ -36,7 +36,7 @@ public interface WheelIO {
 
   /**
    * Update the pid settings (if needed)
-   * 
+   *
    * @param pid
    */
   public default void updatePID(TunablePID pid) {}

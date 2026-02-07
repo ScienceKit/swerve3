@@ -62,8 +62,6 @@ public class WheelIOSpark implements WheelIO {
   }
 
   public void updatePID(TunablePID pid) {
-    if (!pid.changed()) return;
-
     var config = new SparkMaxConfig();
     config.closedLoop.p(pid.p()).d(pid.d()).i(pid.i());
 

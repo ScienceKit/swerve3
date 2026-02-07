@@ -1,6 +1,6 @@
 package frc.robot.util;
 
-import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TunableNumber {
   private final String key;
@@ -20,12 +20,12 @@ public class TunableNumber {
     this.key = key;
     this.defaultValue = defaultValue;
 
-    if (reset || !Preferences.containsKey(key)) Preferences.setDouble(key, defaultValue);
-    this.value = Preferences.getDouble(key, defaultValue);
+    if (reset || !Dashboard.containsKey(key)) Dashboard.setNumber(key, defaultValue);
+    this.value = Dashboard.getNumber(key, defaultValue);
   }
 
   public boolean changed() {
-    return Preferences.getDouble(key, defaultValue) != value;
+    return Dashboard.getNumber(key, defaultValue) != value;
   }
 
   public double get() {
@@ -34,11 +34,30 @@ public class TunableNumber {
   }
 
   public void set(double val) {
-    Preferences.setDouble(key, val);
+    Dashboard.setNumber(key, val);
   }
 
   private void update() {
-    value = Preferences.getDouble(key, defaultValue);
+    value = Dashboard.getNumber(key, defaultValue);
   }
 
+  private static class Dashboard {
+    // public static double getNumber(String key, double def) { return Preferences.getDouble(key,
+    // def); }
+    // public static void setNumber(String key, double number) {  Preferences.setDouble(key,
+    // number); }
+    // public static boolean containsKey(String key) { return Preferences.containsKey(key); }
+
+    public static double getNumber(String key, double def) {
+      return SmartDashboard.getNumber(key, def);
+    }
+
+    public static void setNumber(String key, double number) {
+      SmartDashboard.putNumber(key, number);
+    }
+
+    public static boolean containsKey(String key) {
+      return SmartDashboard.containsKey(key);
+    }
+  }
 }
