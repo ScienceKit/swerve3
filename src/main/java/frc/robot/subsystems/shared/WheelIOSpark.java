@@ -12,7 +12,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.filter.Debouncer;
-import frc.robot.util.TunablePID;
+import frc.robot.util.TunablePID.PIDConstants;
+
 import java.util.function.DoubleSupplier;
 
 public class WheelIOSpark implements WheelIO {
@@ -25,16 +26,7 @@ public class WheelIOSpark implements WheelIO {
 
     var motorConfig = new SparkMaxConfig();
     motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(50).voltageCompensation(12.0);
-    motorConfig.encoder.velocityConversionFactor(1); // 1/60.0
     motorConfig.closedLoop.feedForward.kS(0).kV(0.0021);
-    // uncomment these????
-    // motorConfig
-    //     .signals
-    //     .primaryEncoderVelocityAlwaysOn(true)
-    //     .primaryEncoderVelocityPeriodMs(20)
-    //     .appliedOutputPeriodMs(20)
-    //     .busVoltagePeriodMs(20)
-    //     .outputCurrentPeriodMs(20);
 
     tryUntilOk(
         motor,
@@ -56,14 +48,12 @@ public class WheelIOSpark implements WheelIO {
         (values) -> inputs.appliedVoltage = values[0] * values[1]);
 
     inputs.connected = connectDebounce.calculate(!sparkStickyFault);
-
-    // inputs.appliedTorque =
-    //     CurrentAndTorque.getTorque(inputs.appliedCurrent, CurrentAndTorque.NEO, 1.0).magnitude();
   }
 
-  public void updatePID(TunablePID pid) {
+  @Override
+  public void updateFeedback(PIDConstants pid, double kS, double kV) {
     var config = new SparkMaxConfig();
-    config.closedLoop.p(pid.p()).d(pid.d()).i(pid.i());
+    config.closedLoop.p(pid.p()).i(pid.i()).d(pid.d()).feedForward.kS(kS).kV(kV);
 
     tryUntilOk(
         motor,

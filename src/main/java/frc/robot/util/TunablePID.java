@@ -1,6 +1,8 @@
 package frc.robot.util;
 
 public class TunablePID {
+  public static record PIDConstants(double p, double i, double d) {};
+
   private final TunableNumber tP;
   private final TunableNumber tI;
   private final TunableNumber tD;
@@ -33,5 +35,9 @@ public class TunablePID {
 
   public boolean changed() {
     return tP.changed() || tI.changed() || tD.changed();
+  }
+
+  public PIDConstants pid() {
+    return new PIDConstants(p(), i(), d());
   }
 }

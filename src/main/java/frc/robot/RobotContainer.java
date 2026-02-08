@@ -27,6 +27,8 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.intake.ArmIO;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -44,10 +46,9 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-  private final Vision vision;
   private final Shooter shooter;
-
-  // private final Spindexer spindexer;
+  private final Intake intake;
+  private final Vision vision;
 
   // Controller
   private final CommandGenericHID controller = new CommandGenericHID(0);
@@ -68,7 +69,9 @@ public class RobotContainer {
                 new ModuleIOSpark(3));
 
         // shooter = new Shooter(new WheelIOSpark(30));
-        shooter = new Shooter(new WheelIO() {});
+        shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+
+        intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
         // vision =
         //     new Vision(
@@ -77,7 +80,7 @@ public class RobotContainer {
         //             VisionConstants.camera0Name, VisionConstants.robotToCamera0));
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
-
+        
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
@@ -88,7 +91,9 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
-        shooter = new Shooter(new WheelIO() {});
+        shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+
+        intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
         vision =
             new Vision(
@@ -107,7 +112,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        shooter = new Shooter(new WheelIO() {});
+        shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+
+        intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
