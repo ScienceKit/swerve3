@@ -59,10 +59,8 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (wheelPID.changed())
-      wheel.updateFeedback(wheelPID.pid(), 0, 0.0021);
-    if (feederPID.changed())
-      feeder.updateFeedback(feederPID.pid(), 0, 0);
+    if (wheelPID.changed()) wheel.updateFeedback(wheelPID.pid(), 0, 0.0021);
+    if (feederPID.changed()) feeder.updateFeedback(feederPID.pid(), 0, 0);
 
     wheel.updateInputs(wheelInputs);
     feeder.updateInputs(feederInputs);

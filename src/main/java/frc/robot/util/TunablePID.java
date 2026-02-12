@@ -1,7 +1,7 @@
 package frc.robot.util;
 
 public class TunablePID {
-  public static record PIDConstants(double p, double i, double d) {};
+  public static record PIDConstants(double p, double i, double d) {}
 
   private final TunableNumber tP;
   private final TunableNumber tI;

@@ -41,8 +41,8 @@ public class Intake extends SubsystemBase {
               arm.setOpenLoop(0);
               wheel.setOpenLoop(0);
             }));
-    SmartDashboard.putData("Shooter/Rotate", this.run(() -> arm.setAngle(position.get())));
-    SmartDashboard.putData("Shooter/Spin", this.run(() -> wheel.setVelocity(velocity.get())));
+    SmartDashboard.putData("Intake/Rotate", this.run(() -> arm.setAngle(position.get())));
+    SmartDashboard.putData("Intake/Spin", this.run(() -> wheel.setVelocity(velocity.get())));
   }
 
   @Override

@@ -14,7 +14,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.filter.Debouncer;
 import frc.robot.util.TunablePID.PIDConstants;
-
 import java.util.function.DoubleSupplier;
 
 public class ArmIOSpark implements ArmIO {

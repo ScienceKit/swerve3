@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import frc.robot.util.TunablePID.PIDConstants;
-
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIO {

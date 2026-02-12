@@ -80,7 +80,7 @@ public class RobotContainer {
         //             VisionConstants.camera0Name, VisionConstants.robotToCamera0));
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
-        
+
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
