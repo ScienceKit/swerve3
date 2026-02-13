@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.Shooter;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -18,8 +18,8 @@ public class Shooter extends SubsystemBase {
   private final WheelIOInputsAutoLogged wheelInputs = new WheelIOInputsAutoLogged();
   private final WheelIOInputsAutoLogged feederInputs = new WheelIOInputsAutoLogged();
 
-  private final Alert alertWheel = new Alert("Disconnected main shooter motor", AlertType.kError);
-  private final Alert alertFeeder = new Alert("Disconnectd feeder shooter motor", AlertType.kError);
+  private final Alert alertWheel  = new Alert("Disconnected main shooter motor(erectile disfunction)", AlertType.kError);
+  private final Alert alertFeeder = new Alert("Disconnected feeder shooter motor"                    , AlertType.kError);
 
   private final TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.0003, 0, 0);
   private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID");
@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
       new TunableNumber("Shooter/Feeder/Percentage", 0, true);
 
   private final TunableNumber wheelVelocity =
-      new TunableNumber("Shooter/Wheel/VelocityRPM", 0, true);
+      new TunableNumber("Shooter/Wheel/Velocit,yRPM", 0, true);
   private final TunableNumber feederVelocity =
       new TunableNumber("Shooter/Feeder/VelocityRPM", 0, true);
 
