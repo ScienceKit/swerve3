@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOInputsAutoLogged;
+import frc.robot.util.TunableFF;
 import frc.robot.util.TunableNumber;
 import frc.robot.util.TunablePID;
 import org.littletonrobotics.junction.Logger;
@@ -21,8 +22,10 @@ public class Shooter extends SubsystemBase {
   private final Alert alertWheel = new Alert("Disconnected main shooter motor", AlertType.kError);
   private final Alert alertFeeder = new Alert("Disconnectd feeder shooter motor", AlertType.kError);
 
-  private final TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.0003, 0, 0);
-  private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID");
+  private final TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.0001, 0, 0, true);
+  private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID", 0.0001, 0, 0, true);
+  private final TunableFF wheelFF = new TunableFF("Shooter/Wheel/FF", 0, 0.0022, 0, 0, true);
+  private final TunableFF feederFF = new TunableFF("Shooter/Feeder/FF", 0.4, 0.00217, 0, 0, true);
 
   private final TunableNumber wheelPercentage =
       new TunableNumber("Shooter/Wheel/Percentage", 0, true);
@@ -40,10 +43,6 @@ public class Shooter extends SubsystemBase {
     this.wheel = wheel;
     this.feeder = feeder;
 
-    // TODO: these are just copy pasted, don't want that
-    wheel.updateFeedback(wheelPID.pid(), 0, 0.0021);
-    feeder.updateFeedback(feederPID.pid(), 0, 0);
-
     SmartDashboard.putData("Shooter/Wheel/Stop", this.runOnce(() -> wheel.setOpenLoop(0)));
     SmartDashboard.putData(
         "Shooter/Wheel/Openloop", this.run(() -> wheel.setOpenLoop(wheelPercentage.get())));
@@ -57,10 +56,15 @@ public class Shooter extends SubsystemBase {
         "Shooter/Feeder/Spin", this.run(() -> feeder.setVelocity(feederVelocity.get())));
   }
 
+  private boolean first = true;
+
   @Override
   public void periodic() {
-    if (wheelPID.changed()) wheel.updateFeedback(wheelPID.pid(), 0, 0.0021);
-    if (feederPID.changed()) feeder.updateFeedback(feederPID.pid(), 0, 0);
+    if (wheelPID.changed() || wheelFF.changed() || first)
+      wheel.updateFeedback(wheelPID.pid(), wheelFF.ff());
+    if (feederPID.changed() || feederFF.changed() || first)
+      feeder.updateFeedback(feederPID.pid(), feederFF.ff());
+    first = false;
 
     wheel.updateInputs(wheelInputs);
     feeder.updateInputs(feederInputs);

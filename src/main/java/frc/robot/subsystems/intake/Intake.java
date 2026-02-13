@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOInputsAutoLogged;
+import frc.robot.util.TunableFF.FFConstants;
 import frc.robot.util.TunableNumber;
 import frc.robot.util.TunablePID;
 import org.littletonrobotics.junction.Logger;
@@ -31,8 +32,8 @@ public class Intake extends SubsystemBase {
     this.wheel = wheel;
 
     // TODO: these are just copy patesd, so fix
-    wheel.updateFeedback(wheelPID.pid(), 0, 0);
-    arm.updateFeedback(armPID.pid(), ff);
+    // wheel.updateFeedback(wheelPID.pid(), new FFConstants(0, 0, 0, 0));
+    // arm.updateFeedback(armPID.pid(), ff);
 
     SmartDashboard.putData(
         "Intake/Stop",
@@ -48,7 +49,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     if (armPID.changed()) arm.updateFeedback(armPID.pid(), ff);
-    if (wheelPID.changed()) wheel.updateFeedback(wheelPID.pid(), 0, 0);
+    if (wheelPID.changed()) wheel.updateFeedback(wheelPID.pid(), new FFConstants(0, 0, 0, 0));
 
     arm.updateInputs(armInputs);
     wheel.updateInputs(wheelInputs);

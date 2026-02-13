@@ -30,6 +30,7 @@ import frc.robot.subsystems.drive.ModuleIOSpark;
 import frc.robot.subsystems.intake.ArmIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shared.WheelIO;
+import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
@@ -69,7 +70,7 @@ public class RobotContainer {
                 new ModuleIOSpark(3));
 
         // shooter = new Shooter(new WheelIOSpark(30));
-        shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+        shooter = new Shooter(new WheelIOSpark(50), new WheelIOSpark(51));
 
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
