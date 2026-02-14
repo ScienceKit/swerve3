@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.filter.Debouncer;
+import frc.robot.util.TunableFF.FFConstants;
 import frc.robot.util.TunablePID.PIDConstants;
 import java.util.function.DoubleSupplier;
 
@@ -50,9 +51,18 @@ public class WheelIOSpark implements WheelIO {
   }
 
   @Override
-  public void updateFeedback(PIDConstants pid, double kS, double kV) {
+  public void updateFeedback(PIDConstants pid, FFConstants ff) {
     var config = new SparkMaxConfig();
-    config.closedLoop.p(pid.p()).i(pid.i()).d(pid.d()).feedForward.kS(kS).kV(kV);
+    config
+        .closedLoop
+        .p(pid.p())
+        .i(pid.i())
+        .d(pid.d())
+        .feedForward
+        .kS(ff.kS())
+        .kV(ff.kV())
+        .kA(ff.kA())
+        .kG(ff.kG());
 
     tryUntilOk(
         motor,

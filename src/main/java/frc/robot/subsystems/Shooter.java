@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOInputsAutoLogged;
+import frc.robot.util.TunableFF;
 import frc.robot.util.TunableNumber;
 import frc.robot.util.TunablePID;
 import org.littletonrobotics.junction.Logger;
@@ -22,7 +23,10 @@ public class Shooter extends SubsystemBase {
   private final Alert alertFeeder = new Alert("Disconnectd feeder shooter motor", AlertType.kError);
 
   private final TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.0003, 0, 0);
-  private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID");
+  private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID", 0.0001, 0, 0);
+
+  private final TunableFF wheelFF = new TunableFF("Shooter/Wheel/FF", 0, 0.0022, 0, 0);
+  private final TunableFF feederFF = new TunableFF("Shooter/Feeder/FF", 0.4, 0.0022, 0, 0);
 
   private final TunableNumber wheelPercentage =
       new TunableNumber("Shooter/Wheel/Percentage", 0, true);
@@ -40,9 +44,8 @@ public class Shooter extends SubsystemBase {
     this.wheel = wheel;
     this.feeder = feeder;
 
-    // TODO: these are just copy pasted, don't want that
-    wheel.updateFeedback(wheelPID.pid(), 0, 0.0021);
-    feeder.updateFeedback(feederPID.pid(), 0, 0);
+    wheel.updateFeedback(wheelPID.pid(), wheelFF.ff());
+    feeder.updateFeedback(feederPID.pid(), feederFF.ff());
 
     SmartDashboard.putData("Shooter/Wheel/Stop", this.runOnce(() -> wheel.setOpenLoop(0)));
     SmartDashboard.putData(
@@ -54,19 +57,36 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putData(
         "Shooter/Feeder/Openloop", this.run(() -> feeder.setOpenLoop(feederPercentage.get())));
     SmartDashboard.putData(
-        "Shooter/Feeder/Spin", this.run(() -> feeder.setVelocity(feederVelocity.get())));
+        "Shooter/Feeder/Spin", this.runOnce(() -> feeder.setVelocity(feederVelocity.get())));
+
+    SmartDashboard.putData(
+        "Shooter/Run",
+        this.run(
+            () -> {
+              wheel.setVelocity(wheelVelocity.get());
+              feeder.setVelocity(feederVelocity.get());
+            }));
+
+    SmartDashboard.putData(
+        "Shooter/Stop",
+        this.run(
+            () -> {
+              wheel.setOpenLoop(0);
+              feeder.setOpenLoop(0);
+            }));
   }
 
   @Override
   public void periodic() {
-    if (wheelPID.changed()) wheel.updateFeedback(wheelPID.pid(), 0, 0.0021);
-    if (feederPID.changed()) feeder.updateFeedback(feederPID.pid(), 0, 0);
+    if (wheelPID.changed() || wheelFF.changed()) wheel.updateFeedback(wheelPID.pid(), wheelFF.ff());
+    if (feederPID.changed() || feederFF.changed())
+      feeder.updateFeedback(feederPID.pid(), feederFF.ff());
 
     wheel.updateInputs(wheelInputs);
     feeder.updateInputs(feederInputs);
 
-    Logger.processInputs("Shooter/Wheel/Inputs", wheelInputs);
-    Logger.processInputs("Shooter/Feeder/Inputs", feederInputs);
+    Logger.processInputs("Shooter/Wheel", wheelInputs);
+    Logger.processInputs("Shooter/Feeder", feederInputs);
 
     alertWheel.set(!wheelInputs.connected);
     alertFeeder.set(!feederInputs.connected);

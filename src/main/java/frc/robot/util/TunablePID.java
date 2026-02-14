@@ -12,7 +12,7 @@ public class TunablePID {
   }
 
   public TunablePID(String key, double p, double i, double d) {
-    this(key, p, i, d, false);
+    this(key, p, i, d, true);
   }
 
   public TunablePID(String key, double p, double i, double d, boolean reset) {

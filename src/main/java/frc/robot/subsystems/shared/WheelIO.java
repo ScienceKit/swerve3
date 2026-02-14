@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shared;
 
+import frc.robot.util.TunableFF.FFConstants;
 import frc.robot.util.TunablePID.PIDConstants;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -39,5 +40,5 @@ public interface WheelIO {
    *
    * @param pid
    */
-  public default void updateFeedback(PIDConstants pid, double kS, double kV) {}
+  public default void updateFeedback(PIDConstants pid, FFConstants ff) {}
 }
