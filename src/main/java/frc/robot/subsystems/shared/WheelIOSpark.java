@@ -40,7 +40,8 @@ public class WheelIOSpark implements WheelIO {
   public void updateInputs(WheelIOInputs inputs) {
     sparkStickyFault = false;
 
-    ifOk(motor, motor.getEncoder()::getVelocity, (value) -> inputs.measuredVelocityRPM = value);
+    ifOk(motor, motor.getEncoder()::getVelocity, (v) -> inputs.measuredVelocityRPM = v);
+    ifOk(motor, motor.getEncoder()::getPosition, (v) -> inputs.measuredRotations = v);
     ifOk(motor, motor::getOutputCurrent, (v) -> inputs.appliedCurrent = v);
     ifOk(
         motor,
@@ -80,5 +81,10 @@ public class WheelIOSpark implements WheelIO {
   @Override
   public void setVelocity(double velocityRPM) {
     motor.getClosedLoopController().setSetpoint(velocityRPM, ControlType.kVelocity);
+  }
+
+  @Override
+  public void setVolts(double volts) {
+    motor.setVoltage(volts);
   }
 }

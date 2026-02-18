@@ -8,6 +8,7 @@ public interface WheelIO {
   @AutoLog
   public static class WheelIOInputs {
     public boolean connected = false;
+    public double measuredRotations = 0.0;
     public double measuredVelocityRPM = 0.0;
     public double appliedCurrent = 0.0;
     public double appliedVoltage = 0.0;
@@ -34,6 +35,13 @@ public interface WheelIO {
    * @param velocityRPS the setpoint in rps.
    */
   public default void setVelocity(double velocityRPS) {}
+
+  /**
+   * Run the motor controller with volts volts
+   *
+   * @param volts the volts in volts for setVolts
+   */
+  public default void setVolts(double volts) {}
 
   /**
    * Update the pid settings (if needed)ww

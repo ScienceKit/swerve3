@@ -74,6 +74,7 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
+        // shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
         shooter = new Shooter(new WheelIOSpark(50), new WheelIOSpark(51));
 
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
