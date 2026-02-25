@@ -29,11 +29,11 @@ public class Shooter extends SubsystemBase {
   private final Alert alertWheel = new Alert("Disconnected main shooter motor", AlertType.kError);
   private final Alert alertFeeder = new Alert("Disconnectd feeder shooter motor", AlertType.kError);
 
-  private final TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.0003, 0, 0);
-  private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID", 0.0001, 0, 0);
+  private final TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.000003, 0, 0);
+  private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID", 0.000008, 0, 0);
 
-  private final TunableFF wheelFF = new TunableFF("Shooter/Wheel/FF", 0, 0.0022, 0, 0);
-  private final TunableFF feederFF = new TunableFF("Shooter/Feeder/FF", 0.4, 0.0022, 0, 0);
+  private final TunableFF wheelFF = new TunableFF("Shooter/Wheel/FF", 0.13, 0.002117, 0, 0);
+  private final TunableFF feederFF = new TunableFF("Shooter/Feeder/FF", 0.38, 0.0022662, 0, 0);
 
   private final TunableNumber wheelPercentage =
       new TunableNumber("Shooter/Wheel/Percentage", 0, true);
@@ -47,7 +47,8 @@ public class Shooter extends SubsystemBase {
 
   private final SysIdRoutine wheelSysId;
   private final SysIdRoutine feederSysId;
-  private final LoggedDashboardChooser<Command> sysIDChooser = new LoggedDashboardChooser<>("Shooter/SysIdRoutine");
+  private final LoggedDashboardChooser<Command> sysIDChooser =
+      new LoggedDashboardChooser<>("Shooter/SysIdRoutine");
 
   public Shooter(WheelIO wheel, WheelIO feeder) {
     super();
