@@ -1,114 +1,46 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Volts;
-
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.subsystems.shared.WheelController;
 import frc.robot.subsystems.shared.WheelIO;
-import frc.robot.subsystems.shared.WheelIOInputsAutoLogged;
 import frc.robot.util.TunableFF;
-import frc.robot.util.TunableNumber;
 import frc.robot.util.TunablePID;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class Shooter extends SubsystemBase {
 
-  private final WheelIO wheel;
-  private final WheelIO feeder;
+  private final WheelController wheelController;
+  private final WheelController feederController;
 
-  private final WheelIOInputsAutoLogged wheelInputs = new WheelIOInputsAutoLogged();
-  private final WheelIOInputsAutoLogged feederInputs = new WheelIOInputsAutoLogged();
-
-  private final Alert alertWheel = new Alert("Disconnected main shooter motor", AlertType.kError);
-  private final Alert alertFeeder = new Alert("Disconnectd feeder shooter motor", AlertType.kError);
-
-  private final TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.000003, 0, 0);
-  private final TunablePID feederPID = new TunablePID("Shooter/Feeder/PID", 0.000008, 0, 0);
-
-  private final TunableFF wheelFF = new TunableFF("Shooter/Wheel/FF", 0.13, 0.002117, 0, 0);
-  private final TunableFF feederFF = new TunableFF("Shooter/Feeder/FF", 0.38, 0.0022662, 0, 0);
-
-  private final TunableNumber wheelPercentage =
-      new TunableNumber("Shooter/Wheel/Percentage", 0, true);
-  private final TunableNumber feederPercentage =
-      new TunableNumber("Shooter/Feeder/Percentage", 0, true);
-
-  private final TunableNumber wheelVelocity =
-      new TunableNumber("Shooter/Wheel/VelocityRPM", 0, true);
-  private final TunableNumber feederVelocity =
-      new TunableNumber("Shooter/Feeder/VelocityRPM", 0, true);
-
-  private final SysIdRoutine wheelSysId;
-  private final SysIdRoutine feederSysId;
   private final LoggedDashboardChooser<Command> sysIDChooser =
       new LoggedDashboardChooser<>("Shooter/SysIdRoutine");
 
   public Shooter(WheelIO wheel, WheelIO feeder) {
     super();
 
-    this.wheel = wheel;
-    this.feeder = feeder;
+    TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.000003, 0, 0);
+    TunablePID feederPID = new TunablePID("Shooter/Feeder/PID", 0.000008, 0, 0);
 
-    wheel.updateFeedback(wheelPID.pid(), wheelFF.ff());
-    feeder.updateFeedback(feederPID.pid(), feederFF.ff());
+    TunableFF wheelFF = new TunableFF("Shooter/Wheel/FF", 0.13, 0.002117, 0, 0);
+    TunableFF feederFF = new TunableFF("Shooter/Feeder/FF", 0.38, 0.0022662, 0, 0);
 
-    SmartDashboard.putData("Shooter/Wheel/Stop", this.runOnce(() -> wheel.setOpenLoop(0)));
-    SmartDashboard.putData(
-        "Shooter/Wheel/Openloop", this.run(() -> wheel.setOpenLoop(wheelPercentage.get())));
-    SmartDashboard.putData(
-        "Shooter/Wheel/Spin", this.run(() -> wheel.setVelocity(wheelVelocity.get())));
+    this.wheelController = new WheelController("Shooter/Wheel", wheel, this, wheelPID, wheelFF);
+    this.feederController =
+        new WheelController("Shooter/Feeder", feeder, this, feederPID, feederFF);
 
-    SmartDashboard.putData("Shooter/Feeder/Stop", this.runOnce(() -> feeder.setOpenLoop(0)));
-    SmartDashboard.putData(
-        "Shooter/Feeder/Openloop", this.run(() -> feeder.setOpenLoop(feederPercentage.get())));
-    SmartDashboard.putData(
-        "Shooter/Feeder/Spin", this.runOnce(() -> feeder.setVelocity(feederVelocity.get())));
-
+    // Combined run/stop dashboard controls
     SmartDashboard.putData(
         "Shooter/Run",
-        this.run(
-            () -> {
-              wheel.setVelocity(wheelVelocity.get());
-              feeder.setVelocity(feederVelocity.get());
-            }));
+        wheelController.spin().alongWith(feederController.spin()));
 
     SmartDashboard.putData(
         "Shooter/Stop",
-        this.run(
-            () -> {
-              wheel.setOpenLoop(0);
-              feeder.setOpenLoop(0);
-            }));
-
-    wheelSysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null,
-                null,
-                null, // Use default config
-                (state) -> Logger.recordOutput("Shooter/Wheel/SysID", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> wheel.setVolts(voltage.in(Volts)),
-                null, // No log consumer, since data is recorded by AdvantageKit
-                this));
-    feederSysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null,
-                null,
-                null, // Use default config
-                (state) -> Logger.recordOutput("Shooter/Feeder/SysID", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> feeder.setVolts(voltage.in(Volts)),
-                null, // No log consumer, since data is recorded by AdvantageKit
-                this));
+        wheelController.stop().alongWith(feederController.stop()));
 
     sysIDChooser.addDefaultOption("_", Commands.none());
     sysIDChooser.addOption("Wheel qs f", sysIdQuasistatic(Direction.kForward));
@@ -119,45 +51,21 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (wheelPID.changed() || wheelFF.changed()) wheel.updateFeedback(wheelPID.pid(), wheelFF.ff());
-    if (feederPID.changed() || feederFF.changed())
-      feeder.updateFeedback(feederPID.pid(), feederFF.ff());
+    wheelController.periodic();
+    feederController.periodic();
 
-    wheel.updateInputs(wheelInputs);
-    feeder.updateInputs(feederInputs);
-
-    Logger.processInputs("Shooter/Wheel", wheelInputs);
-    Logger.processInputs("Shooter/Feeder", feederInputs);
-
-    alertWheel.set(!wheelInputs.connected);
-    alertFeeder.set(!feederInputs.connected);
-
-    SmartDashboard.putData("Shooter/SYSID", sysIDChooser.get());
-  }
-
-  public String getKey() {
-    return "Shooter";
+    SmartDashboard.putData("Shooter/RunSysID", sysIDChooser.get());
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    Command wheelCommand =
-        run(() -> wheel.setOpenLoop(0.0))
-            .withTimeout(1.0)
-            .andThen(wheelSysId.quasistatic(direction));
-    Command feederCommand =
-        run(() -> feeder.setOpenLoop(0.0))
-            .withTimeout(1.0)
-            .andThen(feederSysId.quasistatic(direction));
-
+    Command wheelCommand = wheelController.sysIdQuasistatic(direction);
+    Command feederCommand = feederController.sysIdQuasistatic(direction);
     return wheelCommand.andThen(feederCommand);
   }
 
-  /** Returns a command to run a dynamic test in the specified direction. */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    Command wheelCommand =
-        run(() -> wheel.setOpenLoop(0.0)).withTimeout(1.0).andThen(wheelSysId.dynamic(direction));
-    Command feederCommand =
-        run(() -> wheel.setOpenLoop(0.0)).withTimeout(1.0).andThen(feederSysId.dynamic(direction));
+    Command wheelCommand = wheelController.sysIdDynamic(direction);
+    Command feederCommand = feederController.sysIdDynamic(direction);
     return wheelCommand.andThen(feederCommand);
   }
 }

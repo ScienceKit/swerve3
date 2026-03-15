@@ -55,7 +55,8 @@ public class ArmIOSpark implements ArmIO {
   public void updateFeedback(PIDConstants pid, ArmFeedforward ff) {
     var config = new SparkMaxConfig();
     config.closedLoop.p(pid.p()).i(pid.i()).d(pid.d());
-    config.closedLoop.feedForward.kS(ff.getKs()).kV(ff.getKv()).kA(ff.getKa()).kCos(ff.getKg());
+    // TODO: maybe need cos ratio
+    config.closedLoop.feedForward.kS(ff.getKs()).kV(ff.getKv()).kA(ff.getKa()).kCos(ff.getKg()).kG(0);
     tryUntilOk(
         motor,
         5,
