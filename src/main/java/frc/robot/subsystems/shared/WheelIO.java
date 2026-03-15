@@ -26,6 +26,7 @@ public interface WheelIO {
    * Call this once to set the motor power
    *
    * @param percentage the percentage of the motor power.
+   * @deprecated Use setVolts instead.
    */
   public default void setOpenLoop(double percentage) {}
 

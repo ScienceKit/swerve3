@@ -23,16 +23,16 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOSpark;
 import frc.robot.subsystems.intake.ArmIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -61,22 +61,23 @@ public class RobotContainer {
         // Real robot, instantiate hardware IO implementations
         // drive =
         //     new Drive(
-        //         new GyroIONavX(),
-        //         new ModuleIOSpark(0),
-        //         new ModuleIOSpark(1),
-        //         new ModuleIOSpark(2),
-        //         new ModuleIOSpark(3));
+        //         new GyroIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {});
         drive =
             new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
+                new GyroIONavX(),
+                new ModuleIOSpark(0),
+                new ModuleIOSpark(1),
+                new ModuleIOSpark(2),
+                new ModuleIOSpark(3));
 
+        shooter = new Shooter(new WheelIOSpark(51), new WheelIOSpark(52));
         // shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
-        shooter = new Shooter(new WheelIOSpark(50), new WheelIOSpark(51));
 
+        // intake = new Intake(new ArmIOSpark(20), new WheelIOSpark(21));
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
         // vision =
@@ -101,11 +102,7 @@ public class RobotContainer {
 
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
 
       default:

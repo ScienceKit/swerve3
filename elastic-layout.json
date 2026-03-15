@@ -1,296 +1,17 @@
 {
   "version": 1.0,
-  "grid_size": 64,
+  "grid_size": 32,
   "tabs": [
     {
       "name": "Teleoperated",
       "grid_layout": {
         "layouts": [
           {
-            "title": "Feeder",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 512.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Openloop",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/Openloop",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Spin",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/Spin",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Stop",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/Stop",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Percentage",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Number Slider",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/Percentage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": -1.0,
-                  "max_value": 1.0,
-                  "divisions": 5,
-                  "update_continuously": false
-                }
-              },
-              {
-                "title": "VelocityRPM",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/VelocityRPM",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              }
-            ]
-          },
-          {
-            "title": "FF",
-            "x": 256.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 192.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "kS",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/FF/kS",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "kV",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/FF/kV",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "kA",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/FF/kA",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "kG",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/FF/kG",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          },
-          {
-            "title": "FF",
-            "x": 0.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 192.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "kS",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/FF/kS",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "kV",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/FF/kV",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "kA",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/FF/kA",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "kG",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/FF/kG",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          },
-          {
             "title": "PID",
-            "x": 0.0,
-            "y": 704.0,
+            "x": 768.0,
+            "y": 544.0,
             "width": 256.0,
-            "height": 192.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "p",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/PID/p",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "i",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/PID/i",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "d",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/PID/d",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              }
-            ]
-          },
-          {
-            "title": "PID",
-            "x": 256.0,
-            "y": 704.0,
-            "width": 256.0,
-            "height": 192.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -339,18 +60,104 @@
                 }
               }
             ]
-          },
+          }
+        ],
+        "containers": [
           {
-            "title": "Wheel",
-            "x": 0.0,
-            "y": 0.0,
+            "title": "Stop",
+            "x": 768.0,
+            "y": 32.0,
             "width": 256.0,
-            "height": 512.0,
+            "height": 160.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Stop",
+              "period": 0.06,
+              "show_type": false,
+              "maximize_button_space": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tab 2",
+      "grid_layout": {
+        "layouts": [],
+        "containers": []
+      }
+    },
+    {
+      "name": "Shooter Test",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "Feeder",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
             },
             "children": [
+              {
+                "title": "VelocityRPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Feeder/VelocityRPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Percentage",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Feeder/Percentage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Stop",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Feeder/Stop",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "Spin",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Feeder/Spin",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
               {
                 "title": "Openloop",
                 "x": 0.0,
@@ -359,7 +166,62 @@
                 "height": 128.0,
                 "type": "Command",
                 "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/Openloop",
+                  "topic": "/SmartDashboard/Shooter/Feeder/Openloop",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "Wheel",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "VelocityRPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Wheel/VelocityRPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Percentage",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Wheel/Percentage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Stop",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Wheel/Stop",
                   "period": 0.06,
                   "show_type": false,
                   "maximize_button_space": true
@@ -380,45 +242,124 @@
                 }
               },
               {
-                "title": "Stop",
+                "title": "Openloop",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 256.0,
                 "height": 128.0,
                 "type": "Command",
                 "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/Stop",
+                  "topic": "/SmartDashboard/Shooter/Wheel/Openloop",
                   "period": 0.06,
                   "show_type": false,
                   "maximize_button_space": true
                 }
-              },
+              }
+            ]
+          },
+          {
+            "title": "PID",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
               {
-                "title": "Percentage",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Number Slider",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/Percentage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": -1.0,
-                  "max_value": 1.0,
-                  "divisions": 5,
-                  "update_continuously": false
-                }
-              },
-              {
-                "title": "VelocityRPM",
+                "title": "p",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/SmartDashboard/Shooter/Wheel/VelocityRPM",
+                  "topic": "/SmartDashboard/Shooter/Wheel/PID/p",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "d",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Wheel/PID/d",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "i",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Wheel/PID/i",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "PID",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "p",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Feeder/PID/p",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "i",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Feeder/PID/i",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "d",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/Feeder/PID/d",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
@@ -427,14 +368,36 @@
             ]
           }
         ],
-        "containers": []
-      }
-    },
-    {
-      "name": "Tab 2",
-      "grid_layout": {
-        "layouts": [],
-        "containers": []
+        "containers": [
+          {
+            "title": "Run",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Run",
+              "period": 0.06,
+              "show_type": false,
+              "maximize_button_space": true
+            }
+          },
+          {
+            "title": "Stop",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Stop",
+              "period": 0.06,
+              "show_type": false,
+              "maximize_button_space": true
+            }
+          }
+        ]
       }
     }
   ]
