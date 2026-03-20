@@ -15,13 +15,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -32,7 +35,9 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -46,6 +51,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Shooter shooter;
+  private final Indexer indexer;
   private final Intake intake;
   private final Vision vision;
 
@@ -76,17 +82,21 @@ public class RobotContainer {
 
         shooter = new Shooter(new WheelIOSpark(51), new WheelIOSpark(52));
         // shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+        // indexer = new Indexer(new WheelIOSpark(61));
+        indexer = new Indexer(new WheelIO() {});
 
         // intake = new Intake(new ArmIOSpark(20), new WheelIOSpark(21));
         // intake = new Intake(new ArmIOSpark(20), new WheelIOSpark(21));
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVision(
-        //             VisionConstants.camera0Name, VisionConstants.robotToCamera0));
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0),
+                new VisionIOPhotonVision(
+                    VisionConstants.camera1Name, VisionConstants.robotToCamera1));
+        // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
 
       case SIM:
@@ -100,9 +110,8 @@ public class RobotContainer {
                 new ModuleIOSim());
 
         shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
-
+        indexer = new Indexer(new WheelIO() {});
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
-
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
 
@@ -117,9 +126,8 @@ public class RobotContainer {
                 new ModuleIO() {});
 
         shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
-
+        indexer = new Indexer(new WheelIO() {});
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
-
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
     }
@@ -175,6 +183,20 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
+    // Command hubDist =
+    controller
+        .axisGreaterThan(7, 0.0)
+        .whileTrue(
+            Commands.run(
+                () -> {
+                  SmartDashboard.putNumber(
+                      "LOL/Hub distance",
+                      drive
+                          .getPose()
+                          .getTranslation()
+                          .getDistance(new Translation2d(11.9315, 4.0285)));
+                }));
+
     controller
         .axisGreaterThan(5, 0.9)
         .whileTrue(
@@ -198,7 +220,9 @@ public class RobotContainer {
                 .runOnce(
                     () ->
                         drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)))
+                            new Pose2d(
+                                drive.getPose().getTranslation(),
+                                DriveConstants.gyroAngleAdjustment))) // i hope
                 .ignoringDisable(true));
   }
 

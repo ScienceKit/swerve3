@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -23,7 +24,7 @@ public class Shooter extends SubsystemBase {
   public Shooter(WheelIO wheel, WheelIO feeder) {
     super();
 
-    TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.000003, 0, 0);
+    TunablePID wheelPID = new TunablePID("Shooter/Wheel/PID", 0.000004, 0, 0);
     TunablePID feederPID = new TunablePID("Shooter/Feeder/PID", 0.000008, 0, 0);
 
     TunableFF wheelFF = new TunableFF("Shooter/Wheel/FF", 0.12086, 0.0021348, 0.000526, 0);
@@ -34,8 +35,11 @@ public class Shooter extends SubsystemBase {
         new WheelController("Shooter/Feeder", feeder, this, feederPID, feederFF);
 
     // Combined run/stop dashboard controls
-    SmartDashboard.putData("Shooter/Run",  idle().alongWith(wheelController.spin()).alongWith(feederController.spin()));
-    SmartDashboard.putData("Shooter/Stop", idle().alongWith(wheelController.stop()).andThen(feederController.stop()));
+    // TODO: does not work
+    SmartDashboard.putData(
+        "Shooter/Run", idle().alongWith(wheelController.spin()).alongWith(feederController.spin()));
+    SmartDashboard.putData(
+        "Shooter/Stop", idle().alongWith(wheelController.stop()).andThen(feederController.stop()));
 
     sysIDChooser.addDefaultOption("_", Commands.none());
     sysIDChooser.addOption("Wheel qs f", sysIdQuasistatic(Direction.kForward));
@@ -62,5 +66,9 @@ public class Shooter extends SubsystemBase {
     Command wheelCommand = wheelController.sysIdDynamic(direction);
     Command feederCommand = feederController.sysIdDynamic(direction);
     return wheelCommand.andThen(feederCommand);
+  }
+
+  public Translation2d getTranslation() {
+    return new Translation2d(-0.143, 0.209);
   }
 }
