@@ -22,11 +22,15 @@ public class WheelIOSpark implements WheelIO {
   private final Debouncer connectDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
   public WheelIOSpark(int id) {
+    this(id, 0);
+  }
+
+  public WheelIOSpark(int id, double rampRateSeconds) {
     motor = new SparkMax(id, MotorType.kBrushless);
 
     var motorConfig = new SparkMaxConfig();
-    motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(50).voltageCompensation(12.0);
-    motorConfig.closedLoop.feedForward.kS(0).kV(0.0021);
+    motorConfig.closedLoopRampRate(rampRateSeconds);
+    motorConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(45).voltageCompensation(12.0);
 
     tryUntilOk(
         motor,

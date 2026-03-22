@@ -11,12 +11,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -31,13 +30,12 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
 import frc.robot.subsystems.intake.ArmIO;
+import frc.robot.subsystems.intake.ArmIOSpark;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -80,23 +78,23 @@ public class RobotContainer {
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
 
-        shooter = new Shooter(new WheelIOSpark(51), new WheelIOSpark(52));
+        shooter = new Shooter(new WheelIOSpark(51), new WheelIOSpark(52, 1.2), drive::getPose);
         // shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+
         // indexer = new Indexer(new WheelIOSpark(61));
         indexer = new Indexer(new WheelIO() {});
 
-        // intake = new Intake(new ArmIOSpark(20), new WheelIOSpark(21));
-        // intake = new Intake(new ArmIOSpark(20), new WheelIOSpark(21));
-        intake = new Intake(new ArmIO() {}, new WheelIO() {});
+        intake = new Intake(new ArmIOSpark(41), new WheelIOSpark(42));
+        // intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVision(
-                    VisionConstants.camera0Name, VisionConstants.robotToCamera0),
-                new VisionIOPhotonVision(
-                    VisionConstants.camera1Name, VisionConstants.robotToCamera1));
-        // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIOPhotonVision(
+        //             VisionConstants.camera0Name, VisionConstants.robotToCamera0));
+        // new VisionIOPhotonVision(
+        // VisionConstants.camera1Name, VisionConstants.robotToCamera1);
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
 
       case SIM:
@@ -109,7 +107,7 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
-        shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+        shooter = new Shooter(new WheelIO() {}, new WheelIO() {}, drive::getPose);
         indexer = new Indexer(new WheelIO() {});
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
@@ -125,7 +123,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
+        shooter = new Shooter(new WheelIO() {}, new WheelIO() {}, drive::getPose);
         indexer = new Indexer(new WheelIO() {});
         intake = new Intake(new ArmIO() {}, new WheelIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
@@ -183,35 +181,28 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Command hubDist =
-    controller
-        .axisGreaterThan(7, 0.0)
-        .whileTrue(
-            Commands.run(
-                () -> {
-                  SmartDashboard.putNumber(
-                      "LOL/Hub distance",
-                      drive
-                          .getPose()
-                          .getTranslation()
-                          .getDistance(new Translation2d(11.9315, 4.0285)));
-                }));
+    CommandScheduler.getInstance()
+        .getDefaultButtonLoop()
+        .bind(
+            new Runnable() {
+              @Override
+              public void run() {
+                SmartDashboard.putNumber(
+                    "blah/Hub distance",
+                    shooter.getFieldTranslation().getDistance(FieldConstants.Red.hub));
+              }
+            });
 
     controller
         .axisGreaterThan(5, 0.9)
         .whileTrue(
             DriveCommands.throttleDriveAtAngle(
-                drive,
-                () -> controller.getRawAxis(3),
-                () -> controller.getRawAxis(2),
-                () -> {
-                  Rotation2d angle =
-                      new Translation2d(11.9315, 4.0285)
-                          .minus(drive.getPose().getTranslation())
-                          .getAngle(); // idk why not flip on red alliance
-                  return angle;
-                },
-                () -> (controller.getRawAxis(1) + 1) / 2));
+                    drive,
+                    () -> controller.getRawAxis(3),
+                    () -> controller.getRawAxis(2),
+                    () -> shooter.yawToTarget(FieldConstants.Red.hub),
+                    () -> (controller.getRawAxis(1) + 1) / 2)
+                .alongWith(shooter.autoShoot(FieldConstants.Red.hub)));
 
     controller
         .axisGreaterThan(4, 0.9)

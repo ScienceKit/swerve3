@@ -1,6 +1,6 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
+import frc.robot.util.TunableFF.FFConstants;
 import frc.robot.util.TunablePID.PIDConstants;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -16,9 +16,14 @@ public interface ArmIO {
 
   public default void updateInputs(ArmIOInputs inputs) {}
 
+  /**
+   * @depricated use setVolts
+   */
   public default void setOpenLoop(double percentage) {}
 
-  public default void setAngle(double angleRad) {}
+  public default void setVolts(double volts) {}
 
-  public default void updateFeedback(PIDConstants pid, ArmFeedforward ff) {}
+  public default void setAngle(double angle) {}
+
+  public default void updateFeedback(PIDConstants pid, FFConstants ff) {}
 }

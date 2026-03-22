@@ -77,11 +77,11 @@ public class WheelController {
   }
 
   public Command openloop() {
-    return Commands.run(() -> io.setOpenLoop(percentage.get()));
+    return Commands.runEnd(() -> io.setOpenLoop(percentage.get()), () -> io.setVolts(0));
   }
 
   public Command spin() {
-    return Commands.run(() -> io.setVelocity(velocity.get()));
+    return Commands.runEnd(() -> io.setVelocity(velocity.get()), () -> io.setVolts(0));
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

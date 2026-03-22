@@ -18,21 +18,21 @@ public class Indexer extends SubsystemBase {
 
   public Indexer(WheelIO io) {
     TunablePID indexerPID = new TunablePID("Indexer/PID", 0, 0, 0);
-    TunableFF indexerFF = new TunableFF("Indexer/FF", 0, 0, 0, 0);
+    TunableFF indexerFF = new TunableFF("Indexer/FF", 0, 0, 0, 0, 0);
 
     this.controller = new WheelController("Indexer", io, this, indexerPID, indexerFF);
 
     sysIDChooser.addDefaultOption("_", Commands.none());
-    sysIDChooser.addOption("Indexer qs f", controller.sysIdQuasistatic(Direction.kForward));
-    sysIDChooser.addOption("Indexer qs r", controller.sysIdQuasistatic(Direction.kReverse));
-    sysIDChooser.addOption("Indexer d f", controller.sysIdDynamic(Direction.kForward));
-    sysIDChooser.addOption("Indexer d r", controller.sysIdDynamic(Direction.kReverse));
+    sysIDChooser.addOption("qs fwd", controller.sysIdQuasistatic(Direction.kForward));
+    sysIDChooser.addOption("qs rev", controller.sysIdQuasistatic(Direction.kReverse));
+    sysIDChooser.addOption("d fwd", controller.sysIdDynamic(Direction.kForward));
+    sysIDChooser.addOption("d rev", controller.sysIdDynamic(Direction.kReverse));
   }
 
   @Override
   public void periodic() {
     controller.periodic();
 
-    SmartDashboard.putData("Shooter/RunSysID", sysIDChooser.get());
+    SmartDashboard.putData("Indexer/RunSysID", sysIDChooser.get());
   }
 }

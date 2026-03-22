@@ -12,7 +12,6 @@ public interface WheelIO {
     public double measuredVelocityRPM = 0.0;
     public double appliedCurrent = 0.0;
     public double appliedVoltage = 0.0;
-    // public double appliedTorque = 0.0;
   }
 
   /**
@@ -33,9 +32,9 @@ public interface WheelIO {
   /**
    * Set the setpoint for the velocity pid controller.
    *
-   * @param velocityRPS the setpoint in rps.
+   * @param velocityRPM the setpoint in rpm.
    */
-  public default void setVelocity(double velocityRPS) {}
+  public default void setVelocity(double velocityRPM) {}
 
   /**
    * Run the motor controller with volts volts
