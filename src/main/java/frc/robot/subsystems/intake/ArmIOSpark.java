@@ -26,20 +26,23 @@ public class ArmIOSpark implements ArmIO {
     motor = new SparkMax(id, MotorType.kBrushless);
 
     var motorConfig = new SparkMaxConfig();
-    motorConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(50).voltageCompensation(12.0);
+    motorConfig
+        .idleMode(IdleMode.kBrake)
+        .inverted(true)
+        .smartCurrentLimit(50)
+        .voltageCompensation(12.0);
     motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-    motorConfig.inverted(true);
-    // motorConfig
-    //     .closedLoop
-    //     .maxMotion
-    //     .cruiseVelocity(10 * (60 * Math.PI / 180))
-    //     .maxAcceleration(10 * (60 * Math.PI / 180));
     motorConfig
         .absoluteEncoder
         .zeroCentered(true)
-        .positionConversionFactor(ArmConstants.conversionFactor)
-        .velocityConversionFactor(ArmConstants.conversionFactor)
-        .averageDepth(2);
+        .positionConversionFactor(IntakeConstants.Arm.conversionFactor)
+        .velocityConversionFactor(IntakeConstants.Arm.conversionFactor);
+    // motorConfig
+    //     .softLimit
+    //     .forwardSoftLimitEnabled(true)
+    //     .forwardSoftLimit(IntakeConstants.Arm.extendedLimit)
+    //     .reverseSoftLimitEnabled(true)
+    //     .reverseSoftLimit(IntakeConstants.Arm.retractedLimit);
 
     tryUntilOk(
         motor,
@@ -84,13 +87,6 @@ public class ArmIOSpark implements ArmIO {
         .kA(ff.kA())
         .kCos(ff.kCos())
         .kCosRatio(1);
-
-    // config
-    //     .softLimit
-    //     .forwardSoftLimitEnabled(true)
-    //     .forwardSoftLimit(58 / 360.0)
-    //     .reverseSoftLimitEnabled(true)
-    //     .reverseSoftLimit(0);
 
     tryUntilOk(
         motor,

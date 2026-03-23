@@ -11,6 +11,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,18 +60,12 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private final LoggedDashboardChooser<Translation2d> targetChooser;
 
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        // drive =
-        //     new Drive(
-        //         new GyroIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {});
         drive =
             new Drive(
                 new GyroIONavX(),
@@ -78,14 +74,17 @@ public class RobotContainer {
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
 
-        shooter = new Shooter(new WheelIOSpark(51), new WheelIOSpark(52, 1.2), drive::getPose);
-        // shooter = new Shooter(new WheelIO() {}, new WheelIO() {});
-
-        // indexer = new Indexer(new WheelIOSpark(61));
-        indexer = new Indexer(new WheelIO() {});
-
+        shooter =
+            new Shooter(
+                new WheelIOSpark(51),
+                new WheelIOSpark(52, 1.2),
+                drive::getPose,
+                () -> {
+                  ChassisSpeeds speeds = drive.getChassisSpeeds();
+                  return new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+                });
+        indexer = new Indexer(new WheelIOSpark(21));
         intake = new Intake(new ArmIOSpark(41), new WheelIOSpark(42));
-        // intake = new Intake(new ArmIO() {}, new WheelIO() {});
 
         // vision =
         //     new Vision(
@@ -148,6 +147,11 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    targetChooser = new LoggedDashboardChooser<>("Shooter Target");
+    targetChooser.addDefaultOption("Red Hub", FieldConstants.Red.hub);
+    // ...
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -168,16 +172,6 @@ public class RobotContainer {
             () -> -controller.getRawAxis(0),
             () -> (controller.getRawAxis(1) + 1) / 2));
 
-    // Lock to 0° when A button is held
-    // controller
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> Rotation2d.kZero));
-
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
@@ -189,7 +183,7 @@ public class RobotContainer {
               public void run() {
                 SmartDashboard.putNumber(
                     "blah/Hub distance",
-                    shooter.getFieldTranslation().getDistance(FieldConstants.Red.hub));
+                    shooter.getFieldTranslation().getDistance(targetChooser.get()));
               }
             });
 
@@ -200,9 +194,9 @@ public class RobotContainer {
                     drive,
                     () -> controller.getRawAxis(3),
                     () -> controller.getRawAxis(2),
-                    () -> shooter.yawToTarget(FieldConstants.Red.hub),
+                    () -> shooter.yawToTarget(targetChooser.get()),
                     () -> (controller.getRawAxis(1) + 1) / 2)
-                .alongWith(shooter.autoShoot(FieldConstants.Red.hub)));
+                .alongWith(shooter.autoShoot(targetChooser.get())));
 
     controller
         .axisGreaterThan(4, 0.9)

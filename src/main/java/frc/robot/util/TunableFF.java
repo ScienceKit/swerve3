@@ -1,7 +1,5 @@
 package frc.robot.util;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
-
 public class TunableFF {
   public static record FFConstants(double kS, double kV, double kA, double kG, double kCos) {}
 
@@ -11,12 +9,12 @@ public class TunableFF {
   private final TunableNumber tkG;
   private final TunableNumber tkCos;
 
-  public TunableFF(String key, double kS, double kV, double kA, double kG, double kCos) {
-    this(key, kS, kV, kA, kG, kCos, true);
+  public TunableFF(String key) {
+    this(key, 0, 0, 0, 0, 0);
   }
 
-  public TunableFF(String key, ArmFeedforward armFF) {
-    this(key, armFF.getKs(), armFF.getKv(), armFF.getKa(), 0, armFF.getKg());
+  public TunableFF(String key, double kS, double kV, double kA, double kG, double kCos) {
+    this(key, kS, kV, kA, kG, kCos, true);
   }
 
   public TunableFF(

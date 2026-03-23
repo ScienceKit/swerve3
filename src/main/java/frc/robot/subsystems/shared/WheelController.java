@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.TunableFF;
 import frc.robot.util.TunableNumber;
 import frc.robot.util.TunablePID;
+import frc.robot.util.Util;
 import org.littletonrobotics.junction.Logger;
 
 public class WheelController {
@@ -27,39 +28,40 @@ public class WheelController {
   private final TunableNumber velocity;
 
   private final SysIdRoutine sysId;
-  private final SubsystemBase parent;
+
+  public WheelController(String key, WheelIO io) {
+    this(
+        key,
+        io,
+        new SubsystemBase() {},
+        new TunablePID("_temp/" + Util.randomString()),
+        new TunableFF("_temp/" + Util.randomString()));
+  }
 
   public WheelController(
-      String key, WheelIO io, SubsystemBase parent, TunablePID pid, TunableFF ff) {
+      String key, WheelIO io, SubsystemBase sysIdParent, TunablePID pid, TunableFF ff) {
     this.key = key;
     this.io = io;
-    this.parent = parent;
     this.pid = pid;
     this.ff = ff;
 
     this.alert = new Alert("Disconnected " + key + " motor", AlertType.kError);
 
-    // Tunable numbers for dashboard control
     this.percentage = new TunableNumber(key + "/Percentage", 0, true);
     this.velocity = new TunableNumber(key + "/VelocityRPM", 0, true);
 
-    // Apply initial feedback settings
     io.updateFeedback(pid.pid(), ff.ff());
 
-    // Register dashboard commands for common operations
     SmartDashboard.putData(key + "/Stop", stop());
     SmartDashboard.putData(key + "/Openloop", openloop());
     SmartDashboard.putData(key + "/Spin", spin());
 
-    // SysId routine for this wheel
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null,
-                null,
-                null, // Use default config
-                (state) -> Logger.recordOutput(key + "/SysID", state.toString())),
-            new SysIdRoutine.Mechanism((voltage) -> io.setVolts(voltage.in(Volts)), null, parent));
+                null, null, null, (state) -> Logger.recordOutput(key + "/SysID", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> io.setVolts(voltage.in(Volts)), null, sysIdParent));
   }
 
   public void periodic() {
@@ -85,15 +87,13 @@ public class WheelController {
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return parent
-        .runOnce(() -> io.setVolts(0.0))
+    return Commands.runOnce(() -> io.setVolts(0.0))
         .withTimeout(1.0)
         .andThen(sysId.quasistatic(direction));
   }
 
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return parent
-        .runOnce(() -> io.setVolts(0.0))
+    return Commands.runOnce(() -> io.setVolts(0.0))
         .withTimeout(1.0)
         .andThen(sysId.dynamic(direction));
   }
