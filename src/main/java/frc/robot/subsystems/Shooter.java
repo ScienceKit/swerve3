@@ -73,13 +73,13 @@ public class Shooter extends SubsystemBase {
           Map.entry(4.85, 1.334680909),
           Map.entry(5.0, 1.3759597),
           Map.entry(5.165, 1.42136637),
-          Map.entry(5.29, 1.3759597),
+          Map.entry(5.29, 1.43),//1.3759597), sus
           Map.entry(5.458, 1.455765362),
           Map.entry(5.6, 1.501997608),
           Map.entry(5.75, 1.541074863));
 
   // Velocity based shooting while moving
-  // private final InterpolatingDoubleTreeMap distToSpeed = new InterpolatingDoubleTreeMap();
+  // private final InterpolatingDoubleTreeMap distToSpeed = new IntepolatingDoubleTreeMap();
   // private final InterpolatingDoubleTreeMap speedToRPM = new InterpolatingDoubleTreeMap();
 
   private final Translation2d robotToShooter = new Translation2d(-0.143, -0.209);
@@ -193,7 +193,9 @@ public class Shooter extends SubsystemBase {
         () -> {
           wheelController
               .getIO()
-              .setVelocity(distToTime.get(compensatedFieldTranslation(target).getDistance(target)));
+              .setVelocity(
+                  distToRPMMap.get(
+                      compensatedFieldTranslation(target).getDistance(target)));
           feederController.getIO().setVelocity(2500);
         },
         () -> {

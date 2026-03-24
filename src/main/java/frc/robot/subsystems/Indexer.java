@@ -26,7 +26,7 @@ public class Indexer extends SubsystemBase {
 
   public Command sinusoidal() {
     return runEnd(
-        () -> controller.getIO().setVolts(Util.remap(Math.sin(counter / 3), -1, 1, 1, 6)),
+        () -> controller.getIO().setVolts(Util.remap(Math.sin(counter / 3.0), -1, 1, 1, 6)),
         () -> controller.getIO().setVolts(0));
   }
 }
