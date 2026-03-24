@@ -10,9 +10,12 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,6 +44,17 @@ import frc.robot.subsystems.vision.VisionIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
+ * TODO: 
+ * - do drivetrain sysid
+ * - do quasistatic and dynamic sysid of the robot forward 
+ *   and spinning in place 
+ * - tune drivetrain pid (drive and turn)
+ * - test autos + tune drive and holonomic auto pid 
+ * - try shooting while moving 
+ * - climber code
+ */
+
+/**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
@@ -60,7 +74,18 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
   private final LoggedDashboardChooser<Translation2d> targetChooser;
+
+  private Translation2d getTarget() {
+    return allianceFlip(targetChooser.get());
+  }
+
+  private Translation2d allianceFlip(Translation2d element) {
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
+      return FlippingUtil.flipFieldPosition(element);
+    return element;
+  }
 
   public RobotContainer() {
     switch (Constants.currentMode) {
@@ -149,7 +174,7 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     targetChooser = new LoggedDashboardChooser<>("Shooter Target");
-    targetChooser.addDefaultOption("Red Hub", FieldConstants.Red.hub);
+    targetChooser.addDefaultOption("Red Hub", FieldConstants.hub);
     // ...
 
     // Configure the button bindings
@@ -182,8 +207,7 @@ public class RobotContainer {
               @Override
               public void run() {
                 SmartDashboard.putNumber(
-                    "blah/Hub distance",
-                    shooter.getFieldTranslation().getDistance(targetChooser.get()));
+                    "blah/Hub distance", shooter.getFieldTranslation().getDistance(getTarget()));
               }
             });
 
@@ -194,9 +218,9 @@ public class RobotContainer {
                     drive,
                     () -> controller.getRawAxis(3),
                     () -> controller.getRawAxis(2),
-                    () -> shooter.yawToTarget(targetChooser.get()),
+                    () -> shooter.yawToTarget(getTarget()),
                     () -> (controller.getRawAxis(1) + 1) / 2)
-                .alongWith(shooter.autoShoot(targetChooser.get())));
+                .alongWith(shooter.autoShoot(getTarget())));
 
     controller
         .axisGreaterThan(4, 0.9)

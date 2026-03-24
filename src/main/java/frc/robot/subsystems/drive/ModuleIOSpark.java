@@ -27,6 +27,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.util.TunablePID.PIDConstants;
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
 
@@ -107,7 +108,7 @@ public class ModuleIOSpark implements ModuleIO {
     driveConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .pid(driveKp, 0.0, driveKd);
+        .pid(drivePID.p(), 0.0, drivePID.d());
     driveConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)
@@ -143,7 +144,7 @@ public class ModuleIOSpark implements ModuleIO {
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .positionWrappingEnabled(true)
         .positionWrappingInputRange(turnPIDMinInput, turnPIDMaxInput)
-        .pid(turnKp, 0.0, turnKd);
+        .pid(turnPID.p(), 0.0, turnPID.d());
     turnConfig
         .signals
         .absoluteEncoderPositionAlwaysOn(true)
@@ -166,6 +167,28 @@ public class ModuleIOSpark implements ModuleIO {
         SparkOdometryThread.getInstance().registerSignal(driveSpark, driveEncoder::getPosition);
     turnPositionQueue =
         SparkOdometryThread.getInstance().registerSignal(turnSpark, turnEncoder::getPosition);
+  }
+
+  @Override
+  public void updateFeedback(PIDConstants drivingPID, PIDConstants turningPID) {
+    var driveConfig = new SparkMaxConfig();
+    driveConfig.closedLoop.p(drivePID.p()).d(drivePID.d());
+
+    var turnConfig = new SparkMaxConfig();
+    turnConfig.closedLoop.p(turnPID.p()).d(turnPID.d());
+
+    tryUntilOk(
+        driveSpark,
+        5,
+        () ->
+            driveSpark.configure(
+                driveConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));
+    tryUntilOk(
+        turnSpark,
+        5,
+        () ->
+            turnSpark.configure(
+                turnConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));
   }
 
   @Override
@@ -219,9 +242,12 @@ public class ModuleIOSpark implements ModuleIO {
     turnSpark.setVoltage(output);
   }
 
+  // maybe use spark ff and not arbitrary ff, maxmotion velocity mostly uses
   @Override
   public void setDriveVelocity(double velocityRadPerSec) {
-    double ffVolts = driveKs * Math.signum(velocityRadPerSec) + driveKv * velocityRadPerSec;
+    double ffVolts =
+        driveFFConstants.kS() * Math.signum(velocityRadPerSec)
+            + driveFFConstants.kV() * velocityRadPerSec;
     driveController.setSetpoint(
         velocityRadPerSec,
         ControlType.kVelocity,

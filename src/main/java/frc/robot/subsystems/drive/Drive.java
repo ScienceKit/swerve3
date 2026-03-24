@@ -84,25 +84,7 @@ public class Drive extends SubsystemBase {
     SparkOdometryThread.getInstance().start();
 
     // Configure AutoBuilder for PathPlanner
-    AutoBuilder.configure(
-        this::getPose,
-        this::setPose,
-        this::getChassisSpeeds,
-        this::runVelocity,
-        new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
-        ppConfig,
-        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-        this);
-    Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> {
-          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(
-        (targetPose) -> {
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-        });
+    configurePathPlanner();
 
     // Configure SysId
     sysId =
@@ -116,6 +98,29 @@ public class Drive extends SubsystemBase {
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
   }
 
+  public void configurePathPlanner() {
+    AutoBuilder.configure(
+        this::getPose,
+        this::setPose,
+        this::getChassisSpeeds,
+        this::runVelocity,
+        new PPHolonomicDriveController(
+            new PIDConstants(autoDrivePID.p(), autoDrivePID.i(), autoDrivePID.d()),
+            new PIDConstants(autoTurnPID.p(), autoTurnPID.i(), autoTurnPID.d())),
+        ppConfig,
+        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+        this);
+    Pathfinding.setPathfinder(new LocalADStarAK());
+    PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
+        });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        });
+  }
+
   @Override
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
@@ -125,6 +130,8 @@ public class Drive extends SubsystemBase {
       module.periodic();
     }
     odometryLock.unlock();
+
+    if (autoDrivePID.changed() || autoTurnPID.changed()) configurePathPlanner();
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {

@@ -8,6 +8,7 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.util.TunablePID.PIDConstants;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
@@ -32,6 +33,8 @@ public interface ModuleIO {
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(ModuleIOInputs inputs) {}
+
+  public default void updateFeedback(PIDConstants drivingPID, PIDConstants turningPID) {}
 
   /** Run the drive motor at the specified open loop value. */
   public default void setDriveOpenLoop(double output) {}

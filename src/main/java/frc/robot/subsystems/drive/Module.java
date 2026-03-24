@@ -39,6 +39,8 @@ public class Module {
 
   public void periodic() {
     io.updateInputs(inputs);
+    if (drivePID.changed() || turnPID.changed()) io.updateFeedback(drivePID.pid(), turnPID.pid());
+
     Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
     // Calculate positions for odometry
