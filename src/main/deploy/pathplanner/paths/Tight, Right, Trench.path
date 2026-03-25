@@ -21,7 +21,7 @@
       },
       "prevControl": {
         "x": 4.784286645331191,
-        "y": 0.7695848161328582
+        "y": 0.7695848161328585
       },
       "nextControl": {
         "x": 7.64490062050618,
@@ -87,12 +87,6 @@
   ],
   "pointTowardsZones": [],
   "eventMarkers": [
-    {
-      "name": "First shots",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
     {
       "name": "Intaking",
       "waypointRelativePos": 1.9944289693593322,

@@ -85,10 +85,15 @@
   ],
   "eventMarkers": [
     {
-      "name": "First shots",
+      "name": "Static shots",
       "waypointRelativePos": 3.0,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": []
+        }
+      }
     }
   ],
   "globalConstraints": {

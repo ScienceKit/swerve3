@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shared.WheelController;
 import frc.robot.subsystems.shared.WheelIO;
@@ -29,6 +30,8 @@ public class Intake extends SubsystemBase {
     SmartDashboard.putData(
         "Intake/Arm/Rotate",
         this.run(() -> arm.setAngle(armPosition.get() / 360.0)).finallyDo(() -> arm.setVolts(0)));
+
+    setDefaultCommand(run(() -> arm.setAngle(IntakeConstants.Arm.retractedPosition)));
   }
 
   @Override
@@ -49,4 +52,16 @@ public class Intake extends SubsystemBase {
 
   // TODO: Write commands
   // ...
+
+  public Command intake() {
+    return this.startEnd(
+        () -> {
+          arm.setAngle(IntakeConstants.Arm.extendedPosition);
+          wheelController.getIO().setVolts(IntakeConstants.Wheel.intakePower * 12);
+        },
+        () -> {
+          arm.setAngle(IntakeConstants.Arm.retractedPosition);
+          wheelController.getIO().setVolts(0);
+        });
+  }
 }

@@ -8,14 +8,15 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FlippingUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,17 +43,6 @@ import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-/**
- * TODO: 
- * - do drivetrain sysid
- * - do quasistatic and dynamic sysid of the robot forward 
- *   and spinning in place 
- * - tune drivetrain pid (drive and turn)
- * - test autos + tune drive and holonomic auto pid 
- * - try shooting while moving 
- * - climber code
- */
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -82,8 +72,8 @@ public class RobotContainer {
   }
 
   private Translation2d allianceFlip(Translation2d element) {
-    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
-      return FlippingUtil.flipFieldPosition(element);
+    // if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
+    //   return FlippingUtil.flipFieldPosition(element); // TODO: fix, not working
     return element;
   }
 
@@ -154,6 +144,30 @@ public class RobotContainer {
         break;
     }
 
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(8.0, 20.0));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    new EventTrigger("Intaking").whileTrue(intake.intake());
+    new EventTrigger("Static shots")
+        .whileTrue(
+            Commands.startEnd(
+                    () -> {
+                      angleController.reset(
+                          shooter.yawToTarget(allianceFlip(FieldConstants.hub)).getRadians());
+                      PPHolonomicDriveController.overrideRotationFeedback(
+                          () ->
+                              angleController.calculate(
+                                  shooter
+                                      .yawToTarget(allianceFlip(FieldConstants.hub))
+                                      .getRadians()));
+                    },
+                    () -> PPHolonomicDriveController.clearRotationFeedbackOverride())
+                .alongWith(
+                    Commands.waitUntil(() -> angleController.atSetpoint())
+                        .raceWith(Commands.waitSeconds(0.7))
+                        .andThen(shooter.autoShoot(allianceFlip(FieldConstants.hub)))));
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -212,15 +226,17 @@ public class RobotContainer {
             });
 
     controller
-        .axisGreaterThan(5, 0.9)
+        .axisGreaterThan(5, 0.0)
         .whileTrue(
             DriveCommands.throttleDriveAtAngle(
-                    drive,
-                    () -> controller.getRawAxis(3),
-                    () -> controller.getRawAxis(2),
-                    () -> shooter.yawToTarget(getTarget()),
-                    () -> (controller.getRawAxis(1) + 1) / 2)
-                .alongWith(shooter.autoShoot(getTarget())));
+                drive,
+                () -> controller.getRawAxis(3),
+                () -> controller.getRawAxis(2),
+                () -> shooter.yawToTarget(getTarget()),
+                () -> (controller.getRawAxis(1) + 1) / 2));
+    controller.axisGreaterThan(5, 0.9).whileTrue(shooter.autoShoot(getTarget()));
+
+    controller.axisGreaterThan(0, 0.9).whileTrue(intake.intake());
 
     controller
         .axisGreaterThan(4, 0.9)

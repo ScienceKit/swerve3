@@ -13,6 +13,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.util.TunableFF.FFConstants;
 import frc.robot.util.TunablePID.PIDConstants;
 import java.util.function.DoubleSupplier;
@@ -104,6 +106,13 @@ public class ArmIOSpark implements ArmIO {
   @Override
   public void setAngle(double rotation) {
     motor.getClosedLoopController().setSetpoint(rotation, ControlType.kPosition);
+  }
+
+  public Command reachAngle(double angle) {
+    return Commands.runOnce(() -> setAngle(angle))
+        .andThen(
+            Commands.waitUntil(() -> motor.getClosedLoopController().isAtSetpoint())
+                .raceWith(Commands.waitSeconds(IntakeConstants.Arm.reachAngleDeadline)));
   }
 
   public void setVolts(double volts) {

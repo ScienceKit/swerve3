@@ -172,18 +172,10 @@ public class ModuleIOSpark implements ModuleIO {
   @Override
   public void updateFeedback(PIDConstants drivingPID, PIDConstants turningPID) {
     var driveConfig = new SparkMaxConfig();
-    driveConfig
-        .closedLoop
-        .p(drivingPID.p())
-        .i(drivingPID.i())
-        .d(drivingPID.d());
+    driveConfig.closedLoop.p(drivingPID.p()).i(drivingPID.i()).d(drivingPID.d());
 
     var turnConfig = new SparkMaxConfig();
-    turnConfig
-        .closedLoop
-        .p(turningPID.p())
-        .i(turningPID.i())
-        .d(turningPID.d());
+    turnConfig.closedLoop.p(turningPID.p()).i(turningPID.i()).d(turningPID.d());
 
     tryUntilOk(
         driveSpark,
