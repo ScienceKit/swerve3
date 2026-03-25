@@ -18,8 +18,8 @@ public class VisionConstants {
       AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
   // Camera names, must match names configured on coprocessor
-  public static String camera0Name = "OV9281 (1)";
-  public static String camera1Name = "OV9281";
+  public static String camera0Name = "YELLOW";
+  public static String camera1Name = "PURPLE";
 
   // Robot to camera transforms
   // (Not used by Limelight, configure in web UI instead)
@@ -28,7 +28,7 @@ public class VisionConstants {
           -0.298,
           0.334,
           0.238,
-          new Rotation3d(-Math.PI / 180 * 20, 0, Math.PI / 2)); // TODO: WRONGGG
+          new Rotation3d(-Math.PI / 180 * 20, -Math.PI / 180 * 20, Math.PI / 2)); // TODO: WRONGGG
   public static Transform3d robotToCamera1 =
       new Transform3d(
           -0.320, 0.277, 0.242, new Rotation3d(Math.PI / 180 * 70, 0, Math.PI)); // TODO: WRONG

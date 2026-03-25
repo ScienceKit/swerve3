@@ -17,6 +17,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,7 +43,10 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOSpark;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -72,8 +77,8 @@ public class RobotContainer {
   }
 
   private Translation2d allianceFlip(Translation2d element) {
-    // if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
-    //   return FlippingUtil.flipFieldPosition(element); // TODO: fix, not working
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
+      return new Translation2d(16.52, 8.07).minus(element);
     return element;
   }
 
@@ -101,14 +106,15 @@ public class RobotContainer {
         indexer = new Indexer(new WheelIOSpark(21));
         intake = new Intake(new ArmIOSpark(41), new WheelIOSpark(42));
 
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVision(
-        //             VisionConstants.camera0Name, VisionConstants.robotToCamera0));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0),
+                new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1));
         // new VisionIOPhotonVision(
         // VisionConstants.camera1Name, VisionConstants.robotToCamera1);
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+        // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
 
       case SIM:
