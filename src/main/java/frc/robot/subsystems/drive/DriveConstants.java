@@ -17,7 +17,7 @@ import frc.robot.util.TunableFF.FFConstants;
 import frc.robot.util.TunablePID;
 
 public class DriveConstants {
-  public static final double maxSpeedMetersPerSec = 4.8; // TODO: WRONG
+  public static final double maxSpeedMetersPerSec = 3.9; // TODO: WRONG
   public static final double odometryFrequency = 100.0; // Hz
   public static final double trackWidth = 0.6096;
   public static final double wheelBase = 0.5969;
@@ -64,8 +64,9 @@ public class DriveConstants {
 
   // Drive PID configuration
   public static final TunablePID drivePID = new TunablePID("Drive/Driving", 0.0, 0.0, 0.0);
-  public static final FFConstants driveFFConstants =
-      new FFConstants(0.00, 0.1, 0, 0, 0); // only kS and kV used, kA for MOI
+  public static final FFConstants driveFFConstants = new FFConstants(0, 0.1, 0, 0, 0);
+  // constants so fuckingn bad they fucked up the autoshooting
+  //    new FFConstants(0.04, 2.62, 0, 0, 0); // only kS and kV used, kA for MOI
   public static final FFConstants driveAngularFFConstants =
       new FFConstants(0, 0, 0, 0, 0); // kA for MOI
 
@@ -99,7 +100,7 @@ public class DriveConstants {
   public static final TunablePID autoDrivePID = new TunablePID("Drive/Auto/Driving", 5.0, 0.0, 0.0);
   public static final TunablePID autoTurnPID = new TunablePID("Drive/Auto/Turning", 5.0, 0.0, 0.0);
 
-  public static final double robotMassKg = 30; // TODO: WRONG
+  public static final double robotMassKg = 45;
   public static final double robotMOI =
       4; // robotMassKg * trackWidth/2 * driveAngularFFConstants.kA() / driveFFConstants.kA();
   public static final double wheelCOF = 1.2;

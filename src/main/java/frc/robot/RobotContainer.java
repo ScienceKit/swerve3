@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -70,7 +71,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Translation2d> targetChooser;
 
   private Translation2d getTarget() {
-    return allianceFlip(FieldConstants.hub); // targetChooser.get());
+    return allianceFlip(targetChooser.get());
   }
 
   private Translation2d allianceFlip(Translation2d element) {
@@ -148,52 +149,32 @@ public class RobotContainer {
         break;
     }
 
-    ProfiledPIDController angleController =
-        new ProfiledPIDController(2.0, 0.0, 0.0, new TrapezoidProfile.Constraints(8.0, 20.0));
-    angleController.enableContinuousInput(-Math.PI, Math.PI);
-
-    new EventTrigger("Intaking").whileTrue(intake.intake());
-    new EventTrigger("Static shots")
-        .whileTrue(
-            Commands.startEnd(
-                    () -> {
-                      angleController.reset(
-                          shooter.yawToTarget(allianceFlip(FieldConstants.hub)).getRadians());
-                      PPHolonomicDriveController.overrideRotationFeedback(
-                          () ->
-                              angleController.calculate(
-                                  shooter
-                                      .yawToTarget(allianceFlip(FieldConstants.hub))
-                                      .getRadians()));
-                    },
-                    () -> PPHolonomicDriveController.clearRotationFeedbackOverride())
-                .alongWith(
-                    Commands.waitUntil(() -> angleController.atSetpoint())
-                        .raceWith(Commands.waitSeconds(0.7))
-                        .andThen(shooter.autoShoot(allianceFlip(FieldConstants.hub)))));
-
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
+    boolean isAngular = true;
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
     autoChooser.addOption(
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward, isAngular));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse, isAngular));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        "Drive SysId (Dynamic Forward)",
+        drive.sysIdDynamic(SysIdRoutine.Direction.kForward, isAngular));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Drive SysId (Dynamic Reverse)",
+        drive.sysIdDynamic(SysIdRoutine.Direction.kReverse, isAngular));
 
     targetChooser = new LoggedDashboardChooser<>("Shooter Target");
     targetChooser.addDefaultOption("Hub", FieldConstants.hub);
-    // ...
+    targetChooser.addOption("Left Half", FieldConstants.leftHalf);
+    targetChooser.addOption("Right Half", FieldConstants.rightHalf);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -215,9 +196,10 @@ public class RobotContainer {
             () -> -controller.getRawAxis(0),
             () -> (controller.getRawAxis(1) + 1) / 2));
 
-    // Switch to X pattern when X button is pressed
+    // switch to X pattern
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
+    // TODO: Remove, this is for logging
     CommandScheduler.getInstance()
         .getDefaultButtonLoop()
         .bind(
@@ -225,10 +207,16 @@ public class RobotContainer {
               @Override
               public void run() {
                 SmartDashboard.putNumber(
-                    "blah/Hub distance", shooter.getFieldTranslation().getDistance(getTarget()));
+                    "blah/Target distance", shooter.getFieldTranslation().getDistance(getTarget()));
               }
             });
 
+    Command autoShoot =
+        shooter
+            .autoShoot(() -> getTarget())
+            .alongWith(Commands.waitSeconds(0.3).andThen(indexer.sinusoidal()));
+
+    // start auto yaw
     controller
         .axisGreaterThan(5, -0.1)
         .whileTrue(
@@ -238,15 +226,11 @@ public class RobotContainer {
                 () -> controller.getRawAxis(2),
                 () -> shooter.yawToTarget(getTarget()),
                 () -> (controller.getRawAxis(1) + 1) / 2));
-    controller
-        .axisGreaterThan(5, 0.9)
-        .whileTrue(
-            shooter
-                .autoShoot(getTarget())
-                .alongWith(Commands.waitSeconds(0.4).andThen(indexer.sinusoidal())));
+    controller.axisGreaterThan(5, 0.9).whileTrue(autoShoot);
 
     controller.axisGreaterThan(7, 0.9).whileTrue(intake.intake());
 
+    // reset field oriented (mostly useless)
     controller
         .axisGreaterThan(4, 0.9)
         .onTrue(
@@ -258,6 +242,26 @@ public class RobotContainer {
                                 drive.getPose().getTranslation(),
                                 DriveConstants.gyroAngleAdjustment))) // i hope
                 .ignoringDisable(true));
+
+    new EventTrigger("Intake").whileTrue(intake.intake());
+    NamedCommands.registerCommand("Shoot", autoShoot);
+
+    // NamedCommands.registerCommand("Angle + Shoot", );
+
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(2.0, 0.0, 0.0, new TrapezoidProfile.Constraints(8.0, 20.0));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    Command autoAnglePathPlanner =
+        Commands.startEnd(
+            () -> {
+              angleController.reset(shooter.yawToTarget(getTarget()).getRadians());
+              PPHolonomicDriveController.overrideRotationFeedback(
+                  () -> angleController.calculate(drive.getPose().getRotation().getRadians(), shooter.yawToTarget(getTarget()).getRadians()));
+            },
+            () -> PPHolonomicDriveController.clearRotationFeedbackOverride());
+
+    new EventTrigger("Override Angle").whileTrue(autoAnglePathPlanner);
   }
 
   /**
@@ -266,33 +270,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // TODO: UNTESTED
-    ProfiledPIDController angleController =
-        new ProfiledPIDController(2.0, 0.0, 0.0, new TrapezoidProfile.Constraints(8.0, 20.0));
-    angleController.enableContinuousInput(-Math.PI, Math.PI);
-
-    return Commands.startEnd(
-            () -> {
-              angleController.reset(
-                  shooter.yawToTarget(allianceFlip(FieldConstants.hub)).getRadians());
-              PPHolonomicDriveController.overrideRotationFeedback(
-                  () ->
-                      angleController.calculate(
-                          shooter.yawToTarget(allianceFlip(FieldConstants.hub)).getRadians()));
-            },
-            () -> PPHolonomicDriveController.clearRotationFeedbackOverride())
-        .alongWith(
-            Commands.waitUntil(() -> angleController.atSetpoint())
-                .raceWith(Commands.waitSeconds(0.7))
-                .andThen(shooter.autoShoot(allianceFlip(FieldConstants.hub))));
-    // return autoChooser.get();
-    // return Commands.none();
-    // try {
-    //   return AutoBuilder.pathfindThenFollowPath(
-    //       PathPlannerPath.fromPathFile("Example Path"), new PathConstraints(1.5, 1.5, 0.5, 0.5));
-    // } catch (Exception e) {
-    //   System.out.println("Tashaci");
-    //   return Commands.none();
-    // }
+    return autoChooser.get();
   }
 }

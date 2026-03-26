@@ -24,6 +24,6 @@ public class IntakeConstants {
   }
 
   public class Wheel {
-    public static final double intakePower = -0.7;
+    public static final double intakePower = -0.85;
   }
 }

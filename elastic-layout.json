@@ -372,20 +372,6 @@
                 }
               },
               {
-                "title": "Rotate",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Intake/Arm/Rotate",
-                  "period": 0.06,
-                  "show_type": true,
-                  "maximize_button_space": false
-                }
-              },
-              {
                 "title": "Stop",
                 "x": 0.0,
                 "y": 0.0,
@@ -414,17 +400,17 @@
                 }
               },
               {
-                "title": "PositionDegrees",
+                "title": "Rotate",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 128.0,
+                "width": 256.0,
                 "height": 128.0,
-                "type": "Text Display",
+                "type": "Command",
                 "properties": {
-                  "topic": "/SmartDashboard/Intake/Arm/PositionDegrees",
+                  "topic": "/SmartDashboard/Intake/Arm/Rotate",
                   "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
+                  "show_type": true,
+                  "maximize_button_space": false
                 }
               }
             ]
@@ -568,7 +554,7 @@
             ]
           },
           {
-            "title": "FFUp",
+            "title": "FF",
             "x": 0.0,
             "y": 416.0,
             "width": 224.0,
@@ -586,7 +572,7 @@
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/SmartDashboard/Intake/Arm/FFUp/kA",
+                  "topic": "/SmartDashboard/Intake/Arm/FF/kA",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
@@ -600,7 +586,7 @@
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/SmartDashboard/Intake/Arm/FFUp/kCos",
+                  "topic": "/SmartDashboard/Intake/Arm/FF/kCos",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
@@ -614,7 +600,7 @@
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/SmartDashboard/Intake/Arm/FFUp/kG",
+                  "topic": "/SmartDashboard/Intake/Arm/FF/kG",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
@@ -628,7 +614,7 @@
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/SmartDashboard/Intake/Arm/FFUp/kS",
+                  "topic": "/SmartDashboard/Intake/Arm/FF/kS",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
@@ -642,10 +628,10 @@
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/SmartDashboard/Intake/Arm/FFUp/kV",
+                  "topic": "/SmartDashboard/Intake/Arm/FF/kV",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": true
+                  "show_submit_button": false
                 }
               }
             ]
@@ -653,17 +639,31 @@
         ],
         "containers": [
           {
-            "title": "MeasuredRotation",
+            "title": "MeasuredDegrees",
             "x": 0.0,
             "y": 672.0,
-            "width": 448.0,
+            "width": 416.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/SmartDashboard/Intake/MeasuredRotation",
+              "topic": "/SmartDashboard/Intake/MeasuredDegrees",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
+            }
+          },
+          {
+            "title": "Degrees",
+            "x": 512.0,
+            "y": 96.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Intake/Arm/Degrees",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
             }
           }
         ]
@@ -672,76 +672,75 @@
     {
       "name": "Teleoperated",
       "grid_layout": {
-        "layouts": [
-          {
-            "title": "PID",
-            "x": 768.0,
-            "y": 544.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "p",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/PID/p",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "d",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/PID/d",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "i",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/Feeder/PID/i",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              }
-            ]
-          }
-        ],
+        "layouts": [],
         "containers": [
           {
-            "title": "Stop",
-            "x": 768.0,
-            "y": 32.0,
+            "title": "Hub distance",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/blah/Hub distance",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Openloop",
+            "x": 320.0,
+            "y": 0.0,
             "width": 256.0,
-            "height": 160.0,
+            "height": 128.0,
             "type": "Command",
             "properties": {
-              "topic": "/SmartDashboard/Shooter/Stop",
+              "topic": "/SmartDashboard/Indexer/Openloop",
               "period": 0.06,
-              "show_type": false,
-              "maximize_button_space": true
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "Percentage",
+            "x": 576.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Indexer/Percentage",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Stop",
+            "x": 320.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Indexer/Stop",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "Shooter Target",
+            "x": 0.0,
+            "y": 160.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter Target",
+              "period": 0.06,
+              "sort_options": false
             }
           }
         ]

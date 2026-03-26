@@ -69,9 +69,24 @@ public class Module {
   }
 
   /** Runs the module with the specified output while controlling to zero degrees. */
-  public void runCharacterization(double output) {
+  public void runCharacterization(double output, boolean isAngular) {
     io.setDriveOpenLoop(output);
-    io.setTurnPosition(Rotation2d.kZero);
+    if (!isAngular) io.setTurnPosition(Rotation2d.kZero);
+    else
+      switch (index) {
+        case 0:
+          io.setTurnPosition(Rotation2d.fromDegrees(-45));
+          break;
+        case 1:
+          io.setTurnPosition(Rotation2d.fromDegrees(135));
+          break;
+        case 2:
+          io.setTurnPosition(Rotation2d.fromDegrees(45));
+          break;
+        case 3:
+          io.setTurnPosition(Rotation2d.fromDegrees(-135));
+          break;
+      }
   }
 
   /** Disables all outputs to motors. */

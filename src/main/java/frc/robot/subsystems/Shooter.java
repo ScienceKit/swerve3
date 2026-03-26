@@ -147,12 +147,12 @@ public class Shooter extends SubsystemBase {
   }
 
   // Auto shoot no moving
-  public Command autoShoot(Translation2d target) {
+  public Command autoShoot(Supplier<Translation2d> target) {
     return runEnd(
         () -> {
           wheelController
               .getIO()
-              .setVelocity(distToRPMMap.get(getFieldTranslation().getDistance(target)));
+              .setVelocity(distToRPMMap.get(getFieldTranslation().getDistance(target.get())));
           feederController.getIO().setVelocity(2500);
         },
         () -> {
