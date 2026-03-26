@@ -31,6 +31,7 @@ public class Intake extends SubsystemBase {
         "Intake/Arm/Rotate",
         this.run(() -> arm.setAngle(armPosition.get() / 360.0)).finallyDo(() -> arm.setVolts(0)));
 
+    // TODO: lol
     setDefaultCommand(run(() -> arm.setAngle(IntakeConstants.Arm.retractedPosition)));
   }
 

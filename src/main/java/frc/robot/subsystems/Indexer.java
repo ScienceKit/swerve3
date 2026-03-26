@@ -16,6 +16,7 @@ public class Indexer extends SubsystemBase {
     this.controller = new WheelController("Indexer", io);
 
     SmartDashboard.putData("Indexer/Sinusoidal", sinusoidal());
+    SmartDashboard.putData("Indexer/Revesrse", reverse());
   }
 
   @Override
@@ -24,9 +25,17 @@ public class Indexer extends SubsystemBase {
     counter++;
   }
 
+  private double sinVolts() {
+    return Util.remap(Math.sin(counter / 3.0), -1, 1, 1, 6);
+  }
+
   public Command sinusoidal() {
     return runEnd(
-        () -> controller.getIO().setVolts(Util.remap(Math.sin(counter / 3.0), -1, 1, 1, 6)),
-        () -> controller.getIO().setVolts(0));
+        () -> controller.getIO().setVolts(sinVolts()), () -> controller.getIO().setVolts(0));
+  }
+
+  public Command reverse() {
+    return runEnd(
+        () -> controller.getIO().setVolts(-sinVolts()), () -> controller.getIO().setVolts(0));
   }
 }

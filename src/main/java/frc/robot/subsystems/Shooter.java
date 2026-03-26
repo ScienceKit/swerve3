@@ -170,7 +170,7 @@ public class Shooter extends SubsystemBase {
     return target.minus(getFieldTranslation()).getAngle().plus(new Rotation2d(-Math.PI / 2));
   }
 
-  // Distance based autoShootMoving
+  // Distance based autoShootMoving (DOES NOT WORK!!!!!)
   // TODO: more advanced algoithm would take into account the angular velocity of the robot
   public Translation2d compensatedFieldTranslation(Translation2d target) {
     return getFieldTranslation()

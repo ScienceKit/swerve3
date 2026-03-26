@@ -13,13 +13,14 @@ public class IntakeConstants {
     public static final double retractedLimit = 58 / 360.0;
 
     public static final double extendedPosition = 2 / 360.0;
-    public static final double retractedPosition = 40 / 360.0;
+    public static final double retractedPosition = 30 / 360.0;
     // TODO: add more positions
     // ...
 
     public static final TunablePID pid =
-        new TunablePID(Intake.key() + "/Arm/PID", 2.05, 0, 10); // the magic d
-    public static final TunableFF ff = new TunableFF(Intake.key() + "/Arm/FF", 0.4, 0.0, 0, 0, 1.2);
+        new TunablePID(Intake.key() + "/Arm/PID", 2.55, 0, 0); // the magic d
+    public static final TunableFF ff =
+        new TunableFF(Intake.key() + "/Arm/FF", 0.5, 0.0, 0, 0, 0.75); // kS maybe high???
   }
 
   public class Wheel {
