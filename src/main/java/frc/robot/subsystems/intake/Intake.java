@@ -72,10 +72,11 @@ public class Intake extends SubsystemBase {
     return this.runOnce(
             () -> {
               arm.setAngle(10 / 360.0);
-              wheelController.getIO().setVolts(0.2 * 12);
+              wheelController.getIO().setVolts(-0.2 * 12);
             })
-        .andThen(Commands.waitSeconds(0.2))
+        .andThen(Commands.waitSeconds(0.3))
         .andThen(() -> arm.setAngle(40 / 360.0))
+        .andThen(Commands.waitSeconds(0.3))
         .repeatedly()
         .finallyDo(
             () -> {

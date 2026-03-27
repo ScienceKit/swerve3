@@ -215,8 +215,7 @@ public class RobotContainer {
             });
 
     // FUCK JAVA, FUCK WPILIB, FUCK FUCK FUCK FUCK !!!!!!!.
-    Supplier<Command> autoShoot =
-        () ->
+    Supplier<Command> autoShoot = () ->
             shooter
                 .autoShoot(() -> getTarget())
                 .alongWith(Commands.waitSeconds(0.2).andThen(indexer.sinusoidal()));
