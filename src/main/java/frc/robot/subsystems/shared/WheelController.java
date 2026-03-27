@@ -78,6 +78,10 @@ public class WheelController {
     return Commands.runOnce(() -> io.setVolts(0));
   }
 
+  /**
+   * @deprecated
+   * @return
+   */
   public Command openloop() {
     return Commands.runEnd(() -> io.setOpenLoop(percentage.get()), () -> io.setVolts(0));
   }

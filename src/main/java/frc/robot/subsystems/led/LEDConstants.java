@@ -2,6 +2,7 @@ package frc.robot.subsystems.led;
 
 import static edu.wpi.first.units.Units.Millimeters;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -31,15 +32,17 @@ public class LEDConstants {
    */
   public static LEDPattern createDualOrbit(Color color1, Color color2, DoubleSupplier speed) {
     return new LEDPattern() {
-
       double integratedPosition = 0.0;
       double oldTime = Timer.getFPGATimestamp();
 
       @Override
       public void applyTo(LEDReader reader, LEDWriter writer) {
+        // FRC considers strobing lights above 5 flickers per second. The effect and rule get
+        // applied per LED so in total this is max speed.
+        double velocity = MathUtil.clamp(speed.getAsDouble(), 0, 5.0 * 2.0 * Math.PI);
         double seconds = Timer.getFPGATimestamp() - oldTime;
         oldTime += seconds;
-        integratedPosition += speed.getAsDouble() * seconds;
+        integratedPosition += velocity * seconds;
 
         int bufLen = reader.getLength();
         for (int led = 0; led < bufLen; led++) {
@@ -74,6 +77,6 @@ public class LEDConstants {
    */
   static double sin2CurveModulo(double maxPoint, double angle) {
     double clampedAngle = angle % (2.0 * Math.PI);
-    return Math.pow(Math.cos((clampedAngle - maxPoint) / 2), 10);
+    return Math.pow(Math.cos((clampedAngle - maxPoint) / 2), 15);
   }
 }

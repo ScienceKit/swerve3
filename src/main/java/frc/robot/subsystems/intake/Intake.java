@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
     SmartDashboard.putData("Intake/Panic", panic());
 
     // TODO: lol
-    setDefaultCommand(run(() -> arm.setAngle(IntakeConstants.Arm.retractedPosition)));
+    // setDefaultCommand(run(() -> arm.setAngle(IntakeConstants.Arm.retractedPosition)));
   }
 
   @Override

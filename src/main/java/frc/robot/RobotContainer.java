@@ -37,7 +37,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
 import frc.robot.subsystems.intake.ArmIO;
-import frc.robot.subsystems.intake.ArmIOSpark;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shared.WheelIO;
 import frc.robot.subsystems.shared.WheelIOSpark;
@@ -103,7 +102,9 @@ public class RobotContainer {
                   return new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
                 });
         indexer = new Indexer(new WheelIOSpark(21));
-        intake = new Intake(new ArmIOSpark(41), new WheelIOSpark(42));
+        intake = new Intake(new ArmIO() {}, new WheelIO() {});
+
+        // intake = new Intake(new ArmIOSpark(41), new WheelIOSpark(42));
 
         vision =
             new Vision(
@@ -215,7 +216,8 @@ public class RobotContainer {
             });
 
     // FUCK JAVA, FUCK WPILIB, FUCK FUCK FUCK FUCK !!!!!!!.
-    Supplier<Command> autoShoot = () ->
+    Supplier<Command> autoShoot =
+        () ->
             shooter
                 .autoShoot(() -> getTarget())
                 .alongWith(Commands.waitSeconds(0.2).andThen(indexer.sinusoidal()));
