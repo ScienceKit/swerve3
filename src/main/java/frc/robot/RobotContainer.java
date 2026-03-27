@@ -8,7 +8,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -27,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.Drive;
@@ -45,6 +45,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -149,6 +150,8 @@ public class RobotContainer {
         break;
     }
 
+    Climber c = new Climber(31);
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -211,10 +214,13 @@ public class RobotContainer {
               }
             });
 
-    Command autoShoot =
-        shooter
-            .autoShoot(() -> getTarget())
-            .alongWith(Commands.waitSeconds(0.3).andThen(indexer.sinusoidal()));
+    // FUCK JAVA, FUCK WPILIB, FUCK FUCK FUCK FUCK !!!!!!!.
+    Supplier<Command> autoShoot =
+        () ->
+            shooter
+                .autoShoot(() -> getTarget())
+                .alongWith(Commands.waitSeconds(0.2).andThen(indexer.sinusoidal()));
+    // NamedCommands.registerCommand("more shoot", autoShoot);
 
     // start auto yaw
     controller
@@ -226,7 +232,7 @@ public class RobotContainer {
                 () -> controller.getRawAxis(2),
                 () -> shooter.yawToTarget(getTarget()),
                 () -> (controller.getRawAxis(1) + 1) / 2));
-    controller.axisGreaterThan(5, 0.9).whileTrue(autoShoot);
+    controller.axisGreaterThan(5, 0.9).whileTrue(autoShoot.get());
 
     controller.axisGreaterThan(7, 0.9).whileTrue(intake.intake());
 
@@ -243,8 +249,10 @@ public class RobotContainer {
                                 DriveConstants.gyroAngleAdjustment))) // i hope
                 .ignoringDisable(true));
 
-    new EventTrigger("Intake").whileTrue(intake.intake());
-    NamedCommands.registerCommand("Shoot", autoShoot);
+    new EventTrigger("Intaking").whileTrue(intake.intake());
+    new EventTrigger("Shoot")
+        .onTrue(
+            Commands.waitSeconds(1).andThen(autoShoot.get().raceWith(Commands.waitSeconds(10))));
 
     // NamedCommands.registerCommand("Angle + Shoot", );
 
@@ -257,7 +265,10 @@ public class RobotContainer {
             () -> {
               angleController.reset(shooter.yawToTarget(getTarget()).getRadians());
               PPHolonomicDriveController.overrideRotationFeedback(
-                  () -> angleController.calculate(drive.getPose().getRotation().getRadians(), shooter.yawToTarget(getTarget()).getRadians()));
+                  () ->
+                      angleController.calculate(
+                          drive.getPose().getRotation().getRadians(),
+                          shooter.yawToTarget(getTarget()).getRadians()));
             },
             () -> PPHolonomicDriveController.clearRotationFeedbackOverride());
 
