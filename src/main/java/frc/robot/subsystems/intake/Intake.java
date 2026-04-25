@@ -57,22 +57,36 @@ public class Intake extends SubsystemBase {
   // ...
 
   public Command intake() {
-    return this.startEnd(
-        () -> {
-          arm.setAngle(IntakeConstants.Arm.extendedPosition);
-          wheelController.getIO().setVolts(IntakeConstants.Wheel.intakePower * 12);
-        },
-        () -> {
-          arm.setAngle(IntakeConstants.Arm.retractedPosition);
-          wheelController.getIO().setVolts(0);
-        });
+    return Commands.sequence(
+            this.runOnce(() -> arm.setAngle(IntakeConstants.Arm.extendedPosition)),
+            Commands.waitSeconds(0.4),
+            this.run(
+                () -> wheelController.getIO().setVolts(IntakeConstants.Wheel.intakePower * 12)))
+        .finallyDo(
+            () -> {
+              arm.setAngle(IntakeConstants.Arm.retractedPosition);
+              wheelController.getIO().setVolts(0);
+            });
+
+    // return this.startEnd(
+    //         () -> {
+
+    //         },
+    //         () -> {
+    //           arm.setAngle(IntakeConstants.Arm.retractedPosition);
+    //           wheelController.getIO().setVolts(0);
+    //         })
+    //     .andThen(Commands.waitSeconds(0.7))
+    //     .andThen(
+    //         () -> {
+    //           wheelController.getIO().setVolts(IntakeConstants.Wheel.intakePower * 12);
+    //         });
   }
 
   public Command panic() {
     return this.runOnce(
             () -> {
               arm.setAngle(10 / 360.0);
-              wheelController.getIO().setVolts(-0.2 * 12);
             })
         .andThen(Commands.waitSeconds(0.3))
         .andThen(() -> arm.setAngle(40 / 360.0))
